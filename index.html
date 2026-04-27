@@ -6,136 +6,100 @@
 <title>jash.tracker</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;800&display=swap');
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg: #0a0a0f;
-    --surface: #111118;
-    --surface2: #1a1a24;
-    --border: #2a2a3a;
-    --accent: #7c6dfa;
-    --accent2: #fa6d9a;
-    --accent3: #6dfabd;
-    --text: #e8e6ff;
-    --muted: #6b6880;
-    --warn: #faa86d;
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0a0a0f;--surface:#111118;--surface2:#1a1a24;--border:#2a2a3a;
+    --accent:#7c6dfa;--accent2:#fa6d9a;--accent3:#6dfabd;
+    --text:#e8e6ff;--muted:#6b6880;--warn:#faa86d;
   }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  .noise {
-    position: fixed; inset: 0; pointer-events: none; z-index: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    opacity: 0.4;
-  }
-
-  .app { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 24px 16px 60px; }
-
-  .header { margin-bottom: 32px; }
-  .header-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
-  .logo { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
-  .logo span { color: var(--accent); }
-  .date-badge { font-size: 11px; color: var(--muted); border: 1px solid var(--border); padding: 4px 10px; border-radius: 20px; }
-
-  .tabs { display: flex; gap: 2px; margin-bottom: 24px; background: var(--surface); padding: 4px; border-radius: 10px; border: 1px solid var(--border); overflow-x: auto; }
-  .tab { flex: 1; min-width: 80px; padding: 8px 12px; border: none; background: transparent; color: var(--muted); cursor: pointer; border-radius: 7px; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 500; transition: all 0.15s; white-space: nowrap; }
-  .tab.active { background: var(--surface2); color: var(--text); box-shadow: 0 0 0 1px var(--border); }
-  .tab:hover:not(.active) { color: var(--text); }
-
-  .dsa-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
-  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
-  .stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-  .stat-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; }
-  .stat-input { width: 100%; background: transparent; border: none; font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--accent); outline: none; cursor: text; }
-  .stat-input.accent2 { color: var(--accent2); }
-  .stat-input.accent3 { color: var(--accent3); }
-  .stat-input.warn { color: var(--warn); }
-
-  .progress-bar-wrap { margin-bottom: 20px; }
-  .progress-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 6px; }
-  .progress-bar { height: 6px; background: var(--surface2); border-radius: 99px; overflow: hidden; border: 1px solid var(--border); }
-  .progress-fill { height: 100%; border-radius: 99px; transition: width 0.4s; }
-  .fill-accent { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
-
-  .topic-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .topic-item { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.15s; user-select: none; }
-  .topic-item:hover { border-color: var(--accent); }
-  .topic-item.done { border-color: var(--accent3); background: rgba(109, 250, 189, 0.05); }
-  .topic-dot { width: 8px; height: 8px; border-radius: 50%; border: 2px solid var(--muted); flex-shrink: 0; transition: all 0.15s; }
-  .topic-item.done .topic-dot { background: var(--accent3); border-color: var(--accent3); }
-  .topic-name { font-size: 12px; flex: 1; }
-  .topic-count { font-size: 10px; color: var(--muted); }
-
-  .add-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-  .inp { flex: 1; min-width: 100px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 12px; outline: none; transition: border-color 0.15s; }
-  .inp:focus { border-color: var(--accent); }
-  .sel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 12px; outline: none; cursor: pointer; }
-  .btn { padding: 9px 16px; background: var(--accent); border: none; border-radius: 8px; color: white; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; cursor: pointer; transition: opacity 0.15s; white-space: nowrap; }
-  .btn:hover { opacity: 0.85; }
-  .btn-sm { padding: 4px 10px; font-size: 11px; border-radius: 6px; }
-  .btn-del { background: transparent; border: 1px solid var(--border); color: var(--muted); }
-  .btn-del:hover { border-color: var(--accent2); color: var(--accent2); opacity: 1; }
-
-  .app-table { width: 100%; border-collapse: collapse; }
-  .app-table th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); padding: 8px 12px; border-bottom: 1px solid var(--border); }
-  .app-table td { padding: 10px 12px; border-bottom: 1px solid rgba(42,42,58,0.5); font-size: 12px; vertical-align: middle; }
-  .app-table tr:hover td { background: var(--surface); }
-  .app-table tr:last-child td { border-bottom: none; }
-
-  .badge { display: inline-block; padding: 3px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; }
-  .badge-applied { background: rgba(124,109,250,0.15); color: var(--accent); border: 1px solid rgba(124,109,250,0.3); }
-  .badge-oa { background: rgba(250,168,109,0.15); color: var(--warn); border: 1px solid rgba(250,168,109,0.3); }
-  .badge-interview { background: rgba(250,109,154,0.15); color: var(--accent2); border: 1px solid rgba(250,109,154,0.3); }
-  .badge-offer { background: rgba(109,250,189,0.15); color: var(--accent3); border: 1px solid rgba(109,250,189,0.3); }
-  .badge-rejected { background: rgba(107,104,128,0.15); color: var(--muted); border: 1px solid rgba(107,104,128,0.3); }
-  .badge-pending { background: rgba(107,104,128,0.1); color: var(--muted); border: 1px solid var(--border); }
-
-  .tier-a { color: var(--accent3); }
-  .tier-b { color: var(--accent); }
-
-  .oss-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 8px; display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: start; }
-  .oss-repo { color: var(--accent); font-weight: 500; font-size: 13px; }
-  .oss-desc { color: var(--muted); font-size: 11px; margin-top: 4px; }
-  .oss-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
-
-  .month-block { margin-bottom: 24px; }
-  .month-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 800; color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-  .month-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-  .milestone-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(42,42,58,0.4); cursor: pointer; user-select: none; }
-  .milestone-item:last-child { border-bottom: none; }
-  .milestone-check { width: 16px; height: 16px; border: 2px solid var(--border); border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; transition: all 0.15s; margin-top: 1px; }
-  .milestone-item.done .milestone-check { background: var(--accent3); border-color: var(--accent3); color: #0a0a0f; }
-  .milestone-text { font-size: 12px; line-height: 1.5; }
-  .milestone-item.done .milestone-text { color: var(--muted); text-decoration: line-through; }
-  .priority-tag { display: inline-block; margin-left: 6px; font-size: 10px; padding: 1px 6px; border-radius: 4px; }
-  .p-now { background: rgba(250,109,154,0.2); color: var(--accent2); }
-  .p-high { background: rgba(124,109,250,0.2); color: var(--accent); }
-
-  .section-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 14px; }
-  .empty-state { text-align: center; color: var(--muted); padding: 40px; font-size: 12px; }
-  .scroll-x { overflow-x: auto; }
-  select option { background: #1a1a24; }
+  body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;min-height:100vh;overflow-x:hidden}
+  .noise{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");opacity:.4}
+  .app{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:24px 16px 60px}
+  .header{margin-bottom:32px}
+  .header-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+  .logo{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.5px}
+  .logo span{color:var(--accent)}
+  .date-badge{font-size:11px;color:var(--muted);border:1px solid var(--border);padding:4px 10px;border-radius:20px}
+  .tabs{display:flex;gap:2px;margin-bottom:24px;background:var(--surface);padding:4px;border-radius:10px;border:1px solid var(--border);overflow-x:auto}
+  .tab{flex:1;min-width:80px;padding:8px 12px;border:none;background:transparent;color:var(--muted);cursor:pointer;border-radius:7px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;transition:all .15s;white-space:nowrap}
+  .tab.active{background:var(--surface2);color:var(--text);box-shadow:0 0 0 1px var(--border)}
+  .tab:hover:not(.active){color:var(--text)}
+  .dsa-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px}
+  .stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+  .stat-input{width:100%;background:transparent;border:none;font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--accent);outline:none;cursor:text}
+  .stat-input.a2{color:var(--accent2)}.stat-input.a3{color:var(--accent3)}.stat-input.aw{color:var(--warn)}
+  .progress-bar-wrap{margin-bottom:20px}
+  .progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px}
+  .progress-bar{height:6px;background:var(--surface2);border-radius:99px;overflow:hidden;border:1px solid var(--border)}
+  .progress-fill{height:100%;border-radius:99px;transition:width .4s;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .topic-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .topic-item{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .15s;user-select:none}
+  .topic-item:hover{border-color:var(--accent)}
+  .topic-item.done{border-color:var(--accent3);background:rgba(109,250,189,.05)}
+  .topic-dot{width:8px;height:8px;border-radius:50%;border:2px solid var(--muted);flex-shrink:0;transition:all .15s}
+  .topic-item.done .topic-dot{background:var(--accent3);border-color:var(--accent3)}
+  .topic-name{font-size:12px;flex:1}
+  .topic-count{font-size:10px;color:var(--muted)}
+  .add-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+  .inp{flex:1;min-width:100px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;transition:border-color .15s}
+  .inp:focus{border-color:var(--accent)}
+  .sel{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;cursor:pointer}
+  .btn{padding:9px 16px;background:var(--accent);border:none;border-radius:8px;color:#fff;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .15s;white-space:nowrap}
+  .btn:hover{opacity:.85}
+  .btn-sm{padding:4px 10px;font-size:11px;border-radius:6px}
+  .btn-del{background:transparent;border:1px solid var(--border);color:var(--muted)}
+  .btn-del:hover{border-color:var(--accent2);color:var(--accent2);opacity:1}
+  .app-table{width:100%;border-collapse:collapse}
+  .app-table th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:8px 12px;border-bottom:1px solid var(--border)}
+  .app-table td{padding:10px 12px;border-bottom:1px solid rgba(42,42,58,.5);font-size:12px;vertical-align:middle}
+  .app-table tr:hover td{background:var(--surface)}
+  .app-table tr:last-child td{border-bottom:none}
+  .tier-a{color:var(--accent3)}.tier-b{color:var(--accent)}
+  .oss-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start}
+  .oss-repo{color:var(--accent);font-weight:500;font-size:13px}
+  .oss-desc{color:var(--muted);font-size:11px;margin-top:4px}
+  .oss-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+  .month-block{margin-bottom:24px}
+  .month-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .month-title::after{content:'';flex:1;height:1px;background:var(--border)}
+  .milestone-item{border-bottom:1px solid rgba(42,42,58,.4)}
+  .milestone-item:last-child{border-bottom:none}
+  .milestone-row{display:flex;align-items:flex-start;gap:10px;padding:9px 0 5px;cursor:pointer;user-select:none}
+  .milestone-check{width:16px;height:16px;border:2px solid var(--border);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .15s;margin-top:1px}
+  .milestone-item.done .milestone-check{background:var(--accent3);border-color:var(--accent3);color:#0a0a0f}
+  .milestone-text{font-size:12px;line-height:1.5;flex:1}
+  .milestone-item.done .milestone-text{color:var(--muted);text-decoration:line-through}
+  .priority-tag{display:inline-block;margin-left:6px;font-size:10px;padding:1px 6px;border-radius:4px}
+  .p-now{background:rgba(250,109,154,.2);color:var(--accent2)}
+  .p-high{background:rgba(124,109,250,.2);color:var(--accent)}
+  .res-toggle{padding:0 0 7px 26px}
+  .res-btn{font-size:10px;color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:2px 8px;background:transparent;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .15s}
+  .res-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .milestone-item.done .res-btn{opacity:.35}
+  .res-panel{display:none;padding:0 0 10px 26px}
+  .res-panel.open{display:block}
+  .res-list{display:flex;flex-direction:column;gap:6px}
+  .res-link{display:flex;align-items:flex-start;gap:10px;text-decoration:none;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;transition:border-color .15s}
+  .res-link:hover{border-color:var(--accent)}
+  .res-icon{font-size:15px;flex-shrink:0;margin-top:1px}
+  .res-title{font-size:11px;color:var(--text);font-weight:500;margin-bottom:2px}
+  .res-sub{font-size:10px;color:var(--muted);line-height:1.4}
+  .section-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px}
+  .empty-state{text-align:center;color:var(--muted);padding:40px;font-size:12px}
+  .scroll-x{overflow-x:auto}
+  select option{background:#1a1a24}
 </style>
 </head>
 <body>
 <div class="noise"></div>
 <div class="app">
-
   <div class="header">
     <div class="header-top">
       <div class="logo">jash<span>.</span>tracker</div>
       <div class="date-badge" id="dateBadge"></div>
     </div>
   </div>
-
   <div class="tabs">
     <button class="tab active" onclick="switchTab('dsa')">DSA</button>
     <button class="tab" onclick="switchTab('apps')">Applications</button>
@@ -143,37 +107,23 @@
     <button class="tab" onclick="switchTab('milestones')">Milestones</button>
   </div>
 
-  <!-- DSA TAB -->
+  <!-- DSA -->
   <div id="tab-dsa">
     <div class="dsa-grid">
-      <div class="stat-card">
-        <div class="stat-label">Problems Solved</div>
-        <input class="stat-input" id="dsa-total" type="number" min="0" placeholder="0" oninput="saveStats()">
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Hard Problems</div>
-        <input class="stat-input accent2" id="dsa-hard" type="number" min="0" placeholder="0" oninput="saveStats()">
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">LC Contest Rating</div>
-        <input class="stat-input accent3" id="dsa-rating" type="number" min="0" placeholder="0" oninput="saveStats()">
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Mock Interviews</div>
-        <input class="stat-input warn" id="dsa-mocks" type="number" min="0" placeholder="0" oninput="saveStats()">
-      </div>
+      <div class="stat-card"><div class="stat-label">Problems Solved</div><input class="stat-input" id="dsa-total" type="number" min="0" placeholder="0" oninput="saveStats()"></div>
+      <div class="stat-card"><div class="stat-label">Hard Problems</div><input class="stat-input a2" id="dsa-hard" type="number" min="0" placeholder="0" oninput="saveStats()"></div>
+      <div class="stat-card"><div class="stat-label">LC Contest Rating</div><input class="stat-input a3" id="dsa-rating" type="number" min="0" placeholder="0" oninput="saveStats()"></div>
+      <div class="stat-card"><div class="stat-label">Mock Interviews</div><input class="stat-input aw" id="dsa-mocks" type="number" min="0" placeholder="0" oninput="saveStats()"></div>
     </div>
-
     <div class="progress-bar-wrap">
       <div class="progress-label"><span>Progress to 500 problems</span><span id="dsa-pct">0%</span></div>
-      <div class="progress-bar"><div class="progress-fill fill-accent" id="dsa-bar" style="width:0%"></div></div>
+      <div class="progress-bar"><div class="progress-fill" id="dsa-bar" style="width:0%"></div></div>
     </div>
-
     <div class="section-title">Topics</div>
     <div class="topic-grid" id="topicGrid"></div>
   </div>
 
-  <!-- APPLICATIONS TAB -->
+  <!-- APPS -->
   <div id="tab-apps" style="display:none">
     <div class="add-row">
       <input class="inp" id="app-company" placeholder="Company" style="max-width:160px">
@@ -194,28 +144,22 @@
       </select>
       <button class="btn btn-sm" onclick="addApp()">+ Add</button>
     </div>
-
     <div class="dsa-grid" style="margin-bottom:20px">
-      <div class="stat-card"><div class="stat-label">Total Applied</div><div class="stat-value" style="color:var(--accent)" id="count-total">0</div></div>
-      <div class="stat-card"><div class="stat-label">Active / OA</div><div class="stat-value" style="color:var(--warn)" id="count-active">0</div></div>
-      <div class="stat-card"><div class="stat-label">Interviews</div><div class="stat-value" style="color:var(--accent2)" id="count-int">0</div></div>
-      <div class="stat-card"><div class="stat-label">Offers</div><div class="stat-value" style="color:var(--accent3)" id="count-offer">0</div></div>
+      <div class="stat-card"><div class="stat-label">Total Applied</div><div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--accent)" id="count-total">0</div></div>
+      <div class="stat-card"><div class="stat-label">Active / OA</div><div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--warn)" id="count-active">0</div></div>
+      <div class="stat-card"><div class="stat-label">Interviews</div><div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--accent2)" id="count-int">0</div></div>
+      <div class="stat-card"><div class="stat-label">Offers</div><div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--accent3)" id="count-offer">0</div></div>
     </div>
-
     <div class="scroll-x">
       <table class="app-table">
-        <thead>
-          <tr>
-            <th>Company</th><th>Role</th><th>Tier</th><th>Status</th><th>Date</th><th></th>
-          </tr>
-        </thead>
+        <thead><tr><th>Company</th><th>Role</th><th>Tier</th><th>Status</th><th>Date</th><th></th></tr></thead>
         <tbody id="appTableBody"></tbody>
       </table>
-      <div id="apps-empty" class="empty-state" style="display:none">No applications yet. Add your first one above.</div>
+      <div id="apps-empty" class="empty-state" style="display:none">No applications yet.</div>
     </div>
   </div>
 
-  <!-- OSS TAB -->
+  <!-- OSS -->
   <div id="tab-oss" style="display:none">
     <div class="add-row">
       <input class="inp" id="oss-repo" placeholder="Repo (e.g. supabase/supabase)">
@@ -228,304 +172,299 @@
       </select>
       <button class="btn btn-sm" onclick="addOSS()">+ Add</button>
     </div>
-
     <div class="dsa-grid" style="margin-bottom:20px">
-      <div class="stat-card"><div class="stat-label">PRs Merged</div><div class="stat-value" style="color:var(--accent3)" id="oss-merged">0</div></div>
-      <div class="stat-card"><div class="stat-label">In Progress</div><div class="stat-value" style="color:var(--accent)" id="oss-wip">0</div></div>
-      <div class="stat-card"><div class="stat-label">Total Contributions</div><div class="stat-value" style="color:var(--warn)" id="oss-total">0</div></div>
+      <div class="stat-card"><div class="stat-label">PRs Merged</div><div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--accent3)" id="oss-merged">0</div></div>
+      <div class="stat-card"><div class="stat-label">In Progress</div><div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--accent)" id="oss-wip">0</div></div>
+      <div class="stat-card"><div class="stat-label">Total Contributions</div><div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--warn)" id="oss-total">0</div></div>
     </div>
-
     <div id="ossCards"></div>
-    <div id="oss-empty" class="empty-state" style="display:none">No OSS contributions yet. Start with supabase/supabase or langchain-ai/langchain.</div>
+    <div id="oss-empty" class="empty-state" style="display:none">No OSS contributions yet.</div>
   </div>
 
-  <!-- MILESTONES TAB -->
+  <!-- MILESTONES -->
   <div id="tab-milestones" style="display:none">
     <div id="milestonesContainer"></div>
   </div>
-
 </div>
 
 <script>
-const STORAGE_KEY = 'jash_tracker_v2';
-
+const SK = 'jash_tracker_v3';
 const TOPICS = [
-  {id:'arrays',   name:'Arrays & Hashing',              target:60},
-  {id:'twoptr',   name:'Two Pointers / Sliding Window', target:40},
-  {id:'bsearch',  name:'Binary Search',                 target:30},
-  {id:'linked',   name:'Linked Lists',                  target:25},
-  {id:'stacks',   name:'Stacks / Monotonic',            target:25},
-  {id:'recursion',name:'Recursion & Backtracking',      target:30},
-  {id:'bits',     name:'Bit Manipulation',              target:15},
-  {id:'trees',    name:'Trees & BST',                   target:40},
-  {id:'heaps',    name:'Heaps & Priority Queue',        target:20},
-  {id:'tries',    name:'Tries',                         target:10},
-  {id:'graphs',   name:'Graphs (BFS/DFS/Dijkstra)',     target:40},
-  {id:'union',    name:'Union-Find',                    target:12},
-  {id:'dp',       name:'Dynamic Programming (Foundations)', target:50},
-  {id:'dpAdv',    name:'Advanced DP (Aditya Verma)',    target:40},
-  {id:'greedy',   name:'Greedy',                        target:20},
-  {id:'sysdesign',name:'System Design Basics',          target:10},
+  {id:'arrays',name:'Arrays & Hashing',target:60},
+  {id:'twoptr',name:'Two Pointers / Sliding Window',target:40},
+  {id:'bsearch',name:'Binary Search',target:30},
+  {id:'linked',name:'Linked Lists',target:25},
+  {id:'stacks',name:'Stacks / Monotonic',target:25},
+  {id:'recursion',name:'Recursion & Backtracking',target:30},
+  {id:'bits',name:'Bit Manipulation',target:15},
+  {id:'trees',name:'Trees & BST',target:40},
+  {id:'heaps',name:'Heaps & Priority Queue',target:20},
+  {id:'tries',name:'Tries',target:10},
+  {id:'graphs',name:'Graphs (BFS/DFS/Dijkstra)',target:40},
+  {id:'union',name:'Union-Find',target:12},
+  {id:'dp',name:'Dynamic Programming (Foundations)',target:50},
+  {id:'dpAdv',name:'Advanced DP (Aditya Verma)',target:40},
+  {id:'greedy',name:'Greedy',target:20},
+  {id:'sysdesign',name:'System Design Basics',target:10},
 ];
 
-const MILESTONES = [
-  {
-    month: 'April 27 — RIGHT NOW',
-    items: [
-      {id:'m1', text:'Apply Amazon 6-month SDE Intern (July–Dec) at amazon.jobs', priority:'now'},
-      {id:'m2', text:'Set up Claude Cowork folder (ABOUT ME / OUTPUTS / TEMPLATES)', priority:'now'},
-      {id:'m3', text:'Create about-me.md using Cowork interview prompt', priority:'high'},
-    ]
-  },
-  {
-    month: 'May 2026',
-    items: [
-      {id:'m4',  text:'Hit 100 LeetCode problems — Arrays → Hashing → Two Pointers → Sliding Window → Binary Search', priority:'high'},
-      {id:'m5',  text:'Pick flagship project idea (RAG app / MCP agent / browser extension)', priority:'high'},
-      {id:'m6',  text:'LinkedIn outreach: 3–5 SDE-1/2 at Razorpay, Zepto, PhonePe'},
-      {id:'m7',  text:'Apply 2–3 Tier-B AI startups (Composio, Sarvam AI, Portkey) via Wellfound'},
-      {id:'m8',  text:'Set up Simplify.jobs account for US app tracking'},
-    ]
-  },
-  {
-    month: 'June 2026',
-    items: [
-      {id:'m9',  text:'Hit 240 LeetCode — introduce LC Weekly Contest', priority:'high'},
-      {id:'m10', text:'Ship flagship project live with real URL and 50–100 real users', priority:'high'},
-      {id:'m11', text:'Get first OSS PR merged (supabase/supabase or langchain-ai/langchain)', priority:'high'},
-      {id:'m12', text:'Apply Flipkart GRiD + Juspay Hiring Challenge (check Unstop)'},
-      {id:'m13', text:'10–15 off-campus apps via Instahyre / Cutshort / Wellfound'},
-      {id:'m14', text:'Contest rating target: 1,400–1,500'},
-    ]
-  },
-  {
-    month: 'July 2026',
-    items: [
-      {id:'m15', text:'Hit 400 LeetCode — 2 mocks/week, heavy hards', priority:'high'},
-      {id:'m16', text:'Apply Amazon ML Summer School (closes ~July 31)', priority:'high'},
-      {id:'m17', text:'Apply LFX Mentorship Term 2 (window: July 30 – Aug 12)', priority:'high'},
-      {id:'m18', text:'Submit Amazon SWE Intern 2027 application from India', priority:'high'},
-      {id:'m19', text:'Submit Databricks Summer 2027 intern application'},
-      {id:'m20', text:'Get 2nd substantive OSS PR merged'},
-      {id:'m21', text:'Polish US-format resume (1 page, quantified bullets)'},
-      {id:'m22', text:'Contest rating target: 1,600–1,650'},
-    ]
-  },
-  {
-    month: 'August 2026',
-    items: [
-      {id:'m23', text:'Hit 500 LeetCode — consolidate and revise only, no new topics', priority:'high'},
-      {id:'m24', text:'Submit Microsoft + Meta Summer 2027 apps before flying out', priority:'high'},
-      {id:'m25', text:'Apply MLH Fellowship Fall 2026 (~August deadline)', priority:'high'},
-      {id:'m26', text:'Set up Google Voice US number'},
-      {id:'m27', text:'GitHub: 3–5 pinned repos, all live URLs + architecture READMEs'},
-      {id:'m28', text:'LinkedIn updated: Stony Brook admit, MIND 2025 pub, shipped project'},
-      {id:'m29', text:'Get referrals at 3+ US companies via LinkedIn alumni search'},
-      {id:'m30', text:'Contest rating target: 1,700+'},
-      {id:'m31', text:'✈ FLY TO STONY BROOK', priority:'now'},
-    ]
-  },
+const MS = [
+  {month:'April 27 — RIGHT NOW',items:[
+    {id:'m1',text:'Apply Amazon 6-month SDE Intern (July–Dec) at amazon.jobs',priority:'now',res:[
+      {i:'🔗',t:'Amazon Jobs — SDE Intern India',s:'Search "SDE Intern" with India filter',u:'https://www.amazon.jobs/en/search?base_query=software+development+engineer+intern&loc_query=India'},
+      {i:'📋',t:'Amazon Leadership Principles',s:'Prep 16 STAR stories around these — mandatory for behavioural rounds',u:'https://www.amazon.jobs/content/en/our-workplace/leadership-principles'},
+      {i:'💬',t:'LeetCode Discuss — Amazon OA patterns',s:'Recent OA questions shared by candidates',u:'https://leetcode.com/discuss/interview-question?currentPage=1&orderBy=hot&query=amazon+OA+intern'},
+    ]},
+    {id:'m2',text:'Set up Claude Cowork folder (ABOUT ME / OUTPUTS / TEMPLATES)',priority:'now',res:[
+      {i:'📖',t:'Ruben Hassid — Set up Claude Cowork (April 2026)',s:'The definitive setup guide, step by step',u:'https://ruben.substack.com/p/claude-cowork-20'},
+      {i:'📖',t:'Ruben Hassid — Cowork + Projects',s:'Memory that persists between sessions',u:'https://ruben.substack.com/p/claude-cowork-project'},
+      {i:'🌐',t:'claude-co.work — starter prompts',s:'Free resource with copy-paste prompts for Cowork',u:'https://claude-co.work'},
+    ]},
+    {id:'m3',text:'Create about-me.md using Cowork interview prompt',priority:'high',res:[
+      {i:'📖',t:'Ruben Hassid — Claude to sound like you',s:'How to build the voice file that makes Claude write like you',u:'https://ruben.substack.com/p/i-am-just-a-text-file'},
+      {i:'🛠',t:'how-to-ai.guide',s:'Free download of Ruben\'s template folder + anti-AI writing file',u:'https://how-to-ai.guide'},
+    ]},
+  ]},
+  {month:'May 2026',items:[
+    {id:'m4',text:'Hit 100 LeetCode — Arrays → Hashing → Two Pointers → Sliding Window → Binary Search',priority:'high',res:[
+      {i:'📋',t:'Striver A2Z Sheet — start here',s:'Most structured sheet for Indian hiring, covers every topic in order',u:'https://takeuforward.org/strivers-a2z-dsa-course/strivers-a2z-dsa-course-sheet-2/'},
+      {i:'▶️',t:'Aditya Verma — Sliding Window playlist',s:'Best YouTube resource for sliding window patterns',u:'https://www.youtube.com/playlist?list=PL_z_8CaSLPWeM8BDJmIYDaoQ5zuwyxnfj'},
+    ]},
+    {id:'m5',text:'Pick flagship project idea (RAG app / MCP agent / browser extension)',priority:'high',res:[
+      {i:'📖',t:'Top 10 LLM & RAG projects for AI portfolio (2025–26)',s:'Concrete ideas that actually get recruiter attention',u:'https://growtechie.substack.com/p/top-10-llm-and-rag-projects-for-your'},
+      {i:'🎓',t:'HuggingFace Learn — RAG & Agents course',s:'Free, hands-on, covers transformers / RAG / tool-use',u:'https://huggingface.co/learn'},
+      {i:'🎓',t:'DeepLearning.AI — Building RAG Agents with LLMs',s:'Free 1-hour course, gives you the mental model before building',u:'https://www.deeplearning.ai/short-courses/building-agentic-rag-with-llamaindex/'},
+      {i:'🛠',t:'LangChain JS — RAG quickstart',s:'Next.js + LangChain + Supabase pgvector — your exact stack',u:'https://js.langchain.com/docs/tutorials/rag/'},
+      {i:'🛠',t:'Vercel AI SDK',s:'Cleanest way to add streaming AI to a Next.js app',u:'https://sdk.vercel.ai/docs/introduction'},
+    ]},
+    {id:'m6',text:'LinkedIn outreach: 3–5 SDE-1/2 at Razorpay, Zepto, PhonePe',res:[
+      {i:'🔍',t:'LinkedIn Alumni Search',s:'Search company name + SDE + India — filter by 2nd connections',u:'https://www.linkedin.com/search/results/people/'},
+      {i:'💡',t:'How to cold DM for referrals (what actually works)',s:'Lead with your Springer pub + project, ask for referral not "advice"',u:'https://www.linkedin.com/pulse/how-get-employee-referral-tech-company-youre-not-connected-/'},
+    ]},
+    {id:'m7',text:'Apply 2–3 Tier-B AI startups (Composio, Sarvam AI, Portkey) via Wellfound',res:[
+      {i:'🔗',t:'Wellfound — India AI startups',s:'Filter: India + AI/ML + seed/Series A',u:'https://wellfound.com/jobs?role=engineer&country=IN&industry=Artificial+Intelligence'},
+      {i:'🔗',t:'YC Work at a Startup — India filter',s:'YC-backed companies hiring in India, updated weekly',u:'https://www.workatastartup.com/companies?country=IN'},
+      {i:'🔗',t:'Composio — open roles',s:'AI tool-use infra startup, perfect stack match for your profile',u:'https://composio.dev/careers'},
+      {i:'🔗',t:'Sarvam AI — careers',s:'India\'s leading LLM lab',u:'https://www.sarvam.ai/careers'},
+    ]},
+    {id:'m8',text:'Set up Simplify.jobs for tracking US Summer 2027 apps',res:[
+      {i:'🛠',t:'Simplify.jobs',s:'Autofills US job applications, free. Use for all US 2027 apps',u:'https://simplify.jobs'},
+      {i:'📋',t:'Pitt CSC — Summer 2027 Internships list',s:'Community-maintained GitHub list, updated daily when apps open',u:'https://github.com/SimplifyJobs/Summer2025-Internships'},
+    ]},
+  ]},
+  {month:'June 2026',items:[
+    {id:'m9',text:'Hit 240 LeetCode — start LC Weekly Contest',priority:'high',res:[
+      {i:'🏆',t:'LeetCode Weekly Contest',s:'Every Saturday 8:00 AM IST. Aim to solve 2 problems in first 4 contests',u:'https://leetcode.com/contest/'},
+      {i:'▶️',t:'Aditya Verma — DP playlist (start now)',s:'40+ videos, the single best DP resource in the Indian ecosystem',u:'https://www.youtube.com/playlist?list=PL_z_8CaSLPWekqhdCPmFohncHwz8TY2Go'},
+    ]},
+    {id:'m10',text:'Ship flagship project live with real URL and 50–100 real users',priority:'high',res:[
+      {i:'🛠',t:'Vercel — deploy Next.js in 2 minutes',s:'Free tier, instant deploys, perfect for your stack',u:'https://vercel.com/new'},
+      {i:'🛠',t:'Railway.app — backend / DB hosting',s:'Easiest way to host anything that isn\'t purely frontend',u:'https://railway.app'},
+      {i:'📣',t:'IndieHackers — share what you\'ve built',s:'Post here first — active community, real feedback, early users',u:'https://www.indiehackers.com/post/share-what-youve-built'},
+      {i:'📣',t:'ProductHunt — Coming Soon page',s:'Submit a Coming Soon page to collect early signups before launch',u:'https://www.producthunt.com/posts/new'},
+    ]},
+    {id:'m11',text:'Get first OSS PR merged (supabase/supabase or langchain-ai/langchain)',priority:'high',res:[
+      {i:'🔍',t:'goodfirstissue.dev — TypeScript filter',s:'Best discovery tool for beginner-friendly issues in your stack',u:'https://goodfirstissue.dev/language/typescript'},
+      {i:'🔗',t:'supabase/supabase — CONTRIBUTING.md',s:'Start with JS client or Studio dashboard issues. Welcoming maintainers',u:'https://github.com/supabase/supabase/blob/master/CONTRIBUTING.md'},
+      {i:'🔗',t:'langchain-ai/langchain — good first issues',s:'New vectorstore or chat-model integrations are the cleanest PRs',u:'https://github.com/langchain-ai/langchain/contribute'},
+      {i:'🔗',t:'shadcn-ui/ui — contributing',s:'High-visibility component library, great for your Next.js background',u:'https://github.com/shadcn-ui/ui/blob/main/CONTRIBUTING.md'},
+      {i:'💡',t:'How to make OSS contributions sound impressive',s:'What counts as "substantive" vs what gets ignored by reviewers',u:'https://www.gankinterview.com/en/blog/how-to-make-open-source-contributions-sound-impressive-dont-just-say-you-fixed-t'},
+    ]},
+    {id:'m12',text:'Apply Flipkart GRiD + Juspay Hiring Challenge',res:[
+      {i:'🔗',t:'Unstop — Flipkart GRiD',s:'Annual challenge → internship pipeline. Check here for 2026 dates',u:'https://unstop.com/hackathons/flipkart-grid'},
+      {i:'🔗',t:'Unstop — Juspay Hiring Challenge',s:'MCQ + coding + 2-day hackathon → ₹21–27 LPA SDE FT',u:'https://unstop.com/o/juspay'},
+    ]},
+    {id:'m13',text:'10–15 off-campus apps via Instahyre / Cutshort / Wellfound',res:[
+      {i:'🔗',t:'Instahyre',s:'Used by Razorpay, PhonePe, Swiggy for off-campus hiring',u:'https://www.instahyre.com/jobs/'},
+      {i:'🔗',t:'Cutshort',s:'Strong for Indian product companies, fills gaps Wellfound misses',u:'https://cutshort.io/jobs'},
+      {i:'💬',t:'r/developersIndia — Who is Hiring thread',s:'Most honest source for off-campus leads and interview experiences',u:'https://www.reddit.com/r/developersIndia/search/?q=hiring&sort=new'},
+      {i:'💬',t:'AlgoZenith Discord',s:'Documented placements at Google, Amazon, Nutanix — active placement channel',u:'https://discord.gg/algozenith'},
+    ]},
+    {id:'m14',text:'Contest rating target: 1,400–1,500'},
+  ]},
+  {month:'July 2026',items:[
+    {id:'m15',text:'Hit 400 LeetCode — 2 mocks/week, heavy hards',priority:'high',res:[
+      {i:'🎤',t:'interviewing.io — free mock interviews',s:'Practice with real engineers, recordings for self-review',u:'https://interviewing.io'},
+      {i:'🎤',t:'Pramp — peer mock interviews',s:'Free, peer-to-peer, good for explaining solutions out loud',u:'https://www.pramp.com'},
+      {i:'📖',t:'Hello Interview — system design prep',s:'Start SD basics now. Free tier is sufficient for your timeline',u:'https://www.hellointerview.com'},
+    ]},
+    {id:'m16',text:'Apply Amazon ML Summer School (closes ~July 31)',priority:'high',res:[
+      {i:'🔗',t:'Amazon ML Summer School — official page',s:'Free 5-weekend training. Springer pub strengthens your application',u:'https://www.amazon.science/academic-engagements/amazon-launches-annual-ml-summer-school-in-india'},
+      {i:'📋',t:'How to prepare for AMLS selection test',s:'MCQ ML theory + 2 DSA mediums. Apply as soon as it opens',u:'https://www.lets-code.co.in/blogs/amazon-ml-summer-school-2025-how-to-apply-prepare-and-get-selected/'},
+    ]},
+    {id:'m17',text:'Apply LFX Mentorship Term 2 (window: July 30 – Aug 12)',priority:'high',res:[
+      {i:'🔗',t:'LFX Mentorship — apply here',s:'$3,000 stipend, remote, 12 weeks. Applications open July 30 — apply immediately',u:'https://mentorship.lfx.linuxfoundation.org/'},
+      {i:'📋',t:'LFX application guide',s:'Reference your OSS PRs + Springer pub — they weigh both',u:'https://github.com/cncf/mentoring/blob/main/programs/lfx-mentorship/README.md'},
+    ]},
+    {id:'m18',text:'Submit Amazon SWE Intern 2027 application from India',priority:'high',res:[
+      {i:'🔗',t:'Amazon Jobs — SWE Intern 2027 (US)',s:'Opens July–August. Apply day it opens — Amazon reviews rolling',u:'https://www.amazon.jobs/en/search?base_query=software+development+engineer+intern&loc_query=United+States'},
+      {i:'📋',t:'Pitt CSC Summer 2027 tracker',s:'Watch this daily in July — lists Amazon the day apps open',u:'https://github.com/SimplifyJobs/Summer2025-Internships'},
+    ]},
+    {id:'m19',text:'Submit Databricks Summer 2027 intern application',res:[
+      {i:'🔗',t:'Databricks University Recruiting',s:'Opens ~July–Aug. Sponsors CPT/OPT explicitly. HackerRank OA + phone screens',u:'https://www.databricks.com/company/careers/open-positions?department=University+Recruiting'},
+    ]},
+    {id:'m20',text:'Get 2nd substantive OSS PR merged',res:[
+      {i:'🔍',t:'up-for-grabs.net — TypeScript',s:'Broader OSS discovery, filter by language and label',u:'https://up-for-grabs.net/#/tags/typescript'},
+      {i:'🔗',t:'PostHog/posthog — contributing',s:'Python + TS, hires from contributor pool, broad surface area',u:'https://github.com/PostHog/posthog/blob/master/CONTRIBUTING.md'},
+    ]},
+    {id:'m21',text:'Polish US-format resume (1 page, quantified bullets)',res:[
+      {i:'🛠',t:'Resume Worded',s:'Free AI feedback on your resume against FAANG standards',u:'https://resumeworded.com/resume-scanner'},
+      {i:'📋',t:'r/cscareerquestions — resume wiki',s:'Canonical guide for US tech resume format',u:'https://www.reddit.com/r/cscareerquestions/wiki/faq_resumes/'},
+      {i:'💡',t:'How to list publications on a resume',s:'Exact format for your MIND 2025 Springer paper listing',u:'https://zety.com/blog/publications-on-resume'},
+    ]},
+    {id:'m22',text:'Contest rating target: 1,600–1,650'},
+  ]},
+  {month:'August 2026',items:[
+    {id:'m23',text:'Hit 500 LeetCode — consolidate only, no new topics',priority:'high'},
+    {id:'m24',text:'Submit Microsoft + Meta Summer 2027 apps before flying out',priority:'high',res:[
+      {i:'🔗',t:'Microsoft University Recruiting',s:'Opens Aug–Sep. Apply to both US and Microsoft IDC India',u:'https://careers.microsoft.com/v2/global/en/universityrecruiting.html'},
+      {i:'🔗',t:'Meta University — Intern applications',s:'Opens Aug–Sep. E3 SWE intern. DSA + behavioural',u:'https://www.metacareers.com/careerprograms/pathways/internships/'},
+    ]},
+    {id:'m25',text:'Apply MLH Fellowship Fall 2026 (~August deadline)',priority:'high',res:[
+      {i:'🔗',t:'MLH Fellowship — apply',s:'~2.5% acceptance, $5K stipend, 12 weeks. They ask you to explain every line of your code',u:'https://fellowship.mlh.io/'},
+      {i:'📋',t:'How to get selected for MLH Fellowship',s:'Detailed guide from a past fellow',u:'https://prathameshmutkure.hashnode.dev/mlh-fellowship-the-ultimate-guide-for-getting-selected'},
+    ]},
+    {id:'m26',text:'Set up Google Voice US number',res:[
+      {i:'🛠',t:'Google Voice',s:'Free US phone number — required for US job applications and interview scheduling',u:'https://voice.google.com/'},
+    ]},
+    {id:'m27',text:'GitHub: 3–5 pinned repos, live URLs + architecture READMEs',res:[
+      {i:'💡',t:'How to build a standout GitHub profile',s:'What recruiters actually look at — pinned repos, READMEs, contribution graph',u:'https://www.refontelearning.com/blog/enhancing-your-professional-profile-building-and-showcasing-full-stack-projects-on-github'},
+    ]},
+    {id:'m28',text:'LinkedIn updated: Stony Brook admit, MIND 2025 pub, shipped project',res:[
+      {i:'💡',t:'LinkedIn All-Star profile checklist',s:'Headline + About + Featured section — where to place your project and pub',u:'https://university.linkedin.com/linkedin-for-students'},
+    ]},
+    {id:'m29',text:'Get referrals at 3+ US companies via LinkedIn alumni search',res:[
+      {i:'🔍',t:'Stony Brook Alumni on LinkedIn',s:'Alumni tab → filter by company. Message SDE-1/2 who graduated 1–3 years ago',u:'https://www.linkedin.com/school/stony-brook-university/people/'},
+      {i:'📋',t:'a16z Speedrun Alpha Fellowship',s:'$20K equity-free grant for student/recent-grad founders. Apply alongside job apps',u:'https://speedrun.a16z.com/alpha'},
+    ]},
+    {id:'m30',text:'Contest rating target: 1,700+'},
+    {id:'m31',text:'✈ FLY TO STONY BROOK',priority:'now'},
+  ]},
 ];
 
-let state = {
-  dsa: { total:'', hard:'', rating:'', mocks:'' },
-  topics: {},
-  apps: [],
-  oss: [],
-  milestones: {}
-};
+let state={dsa:{total:'',hard:'',rating:'',mocks:''},topics:{},apps:[],oss:[],milestones:{},resOpen:{}};
+function load(){try{const r=localStorage.getItem(SK);if(r)state={...state,...JSON.parse(r)}}catch(e){}}
+function save(){try{localStorage.setItem(SK,JSON.stringify(state))}catch(e){}}
 
-function loadState() {
-  try { const r = localStorage.getItem(STORAGE_KEY); if (r) state = {...state,...JSON.parse(r)}; } catch(e){}
-}
-function saveState() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+function saveStats(){
+  ['total','hard','rating','mocks'].forEach(k=>state.dsa[k]=document.getElementById('dsa-'+k).value);
+  const p=Math.min(100,Math.round((parseInt(state.dsa.total)||0)/500*100));
+  document.getElementById('dsa-bar').style.width=p+'%';
+  document.getElementById('dsa-pct').textContent=p+'%';
+  save();
 }
 
-function saveStats() {
-  state.dsa.total  = document.getElementById('dsa-total').value;
-  state.dsa.hard   = document.getElementById('dsa-hard').value;
-  state.dsa.rating = document.getElementById('dsa-rating').value;
-  state.dsa.mocks  = document.getElementById('dsa-mocks').value;
-  updateProgress();
-  saveState();
-}
-
-function updateProgress() {
-  const total = parseInt(state.dsa.total) || 0;
-  const pct = Math.min(100, Math.round((total / 500) * 100));
-  document.getElementById('dsa-bar').style.width = pct + '%';
-  document.getElementById('dsa-pct').textContent = pct + '%';
-}
-
-function renderTopics() {
-  document.getElementById('topicGrid').innerHTML = TOPICS.map(t => `
-    <div class="topic-item ${state.topics[t.id] ? 'done' : ''}" onclick="toggleTopic('${t.id}')">
-      <div class="topic-dot"></div>
-      <div class="topic-name">${t.name}</div>
-      <div class="topic-count">~${t.target}</div>
+function renderTopics(){
+  document.getElementById('topicGrid').innerHTML=TOPICS.map(t=>`
+    <div class="topic-item ${state.topics[t.id]?'done':''}" onclick="toggleTopic('${t.id}')">
+      <div class="topic-dot"></div><div class="topic-name">${t.name}</div><div class="topic-count">~${t.target}</div>
     </div>`).join('');
 }
+function toggleTopic(id){state.topics[id]=!state.topics[id];renderTopics();save();}
 
-function toggleTopic(id) {
-  state.topics[id] = !state.topics[id];
-  renderTopics(); saveState();
+function addApp(){
+  const c=document.getElementById('app-company').value.trim();
+  if(!c)return;
+  state.apps.unshift({id:Date.now(),company:c,role:document.getElementById('app-role').value.trim(),tier:document.getElementById('app-tier').value,status:document.getElementById('app-status').value,date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})});
+  document.getElementById('app-company').value='';document.getElementById('app-role').value='';
+  renderApps();save();
+}
+function updateAppStatus(id,val){const a=state.apps.find(x=>x.id===id);if(a){a.status=val;renderApps();save();}}
+function deleteApp(id){state.apps=state.apps.filter(x=>x.id!==id);renderApps();save();}
+function renderApps(){
+  const sl={pending:'Pending',applied:'Applied',oa:'OA',interview:'Interview',offer:'Offer ✓',rejected:'Rejected'};
+  const tl={A:'<span class="tier-a">Tier A</span>',B:'<span class="tier-b">Tier B</span>',C:'<span style="color:var(--warn)">US 2027</span>',INT:'<span style="color:var(--accent2)">Intern</span>'};
+  document.getElementById('count-total').textContent=state.apps.length;
+  document.getElementById('count-active').textContent=state.apps.filter(a=>a.status==='applied'||a.status==='oa').length;
+  document.getElementById('count-int').textContent=state.apps.filter(a=>a.status==='interview').length;
+  document.getElementById('count-offer').textContent=state.apps.filter(a=>a.status==='offer').length;
+  const tb=document.getElementById('appTableBody');
+  const em=document.getElementById('apps-empty');
+  if(!state.apps.length){tb.innerHTML='';em.style.display='block';return;}
+  em.style.display='none';
+  tb.innerHTML=state.apps.map(a=>`<tr>
+    <td style="font-weight:500">${a.company}</td>
+    <td style="color:var(--muted)">${a.role||'—'}</td>
+    <td>${tl[a.tier]||a.tier}</td>
+    <td><select class="sel" style="padding:3px 8px;font-size:11px" onchange="updateAppStatus(${a.id},this.value)">${Object.keys(sl).map(s=>`<option value="${s}" ${a.status===s?'selected':''}>${sl[s]}</option>`).join('')}</select></td>
+    <td style="color:var(--muted);font-size:11px">${a.date}</td>
+    <td><button class="btn btn-sm btn-del" onclick="deleteApp(${a.id})">✕</button></td>
+  </tr>`).join('');
 }
 
-function addApp() {
-  const company = document.getElementById('app-company').value.trim();
-  const role    = document.getElementById('app-role').value.trim();
-  const tier    = document.getElementById('app-tier').value;
-  const status  = document.getElementById('app-status').value;
-  if (!company) return;
-  state.apps.unshift({
-    id: Date.now(), company, role, tier, status,
-    date: new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})
-  });
-  document.getElementById('app-company').value = '';
-  document.getElementById('app-role').value = '';
-  renderApps(); saveState();
+function addOSS(){
+  const r=document.getElementById('oss-repo').value.trim();
+  if(!r)return;
+  state.oss.unshift({id:Date.now(),repo:r,desc:document.getElementById('oss-desc').value.trim(),status:document.getElementById('oss-status').value});
+  document.getElementById('oss-repo').value='';document.getElementById('oss-desc').value='';
+  renderOSS();save();
+}
+function updateOSSStatus(id,val){const o=state.oss.find(x=>x.id===id);if(o){o.status=val;renderOSS();save();}}
+function deleteOSS(id){state.oss=state.oss.filter(x=>x.id!==id);renderOSS();save();}
+function renderOSS(){
+  const sl={planned:'Planned','in-progress':'In Progress',submitted:'Submitted →',merged:'Merged ✓'};
+  document.getElementById('oss-merged').textContent=state.oss.filter(x=>x.status==='merged').length;
+  document.getElementById('oss-wip').textContent=state.oss.filter(x=>x.status==='in-progress'||x.status==='submitted').length;
+  document.getElementById('oss-total').textContent=state.oss.length;
+  const c=document.getElementById('ossCards');
+  const em=document.getElementById('oss-empty');
+  if(!state.oss.length){c.innerHTML='';em.style.display='block';return;}
+  em.style.display='none';
+  c.innerHTML=state.oss.map(o=>`<div class="oss-card">
+    <div><div class="oss-repo">${o.repo}</div><div class="oss-desc">${o.desc||'No description'}</div></div>
+    <div class="oss-actions">
+      <select class="sel" style="padding:3px 8px;font-size:11px" onchange="updateOSSStatus(${o.id},this.value)">${['planned','in-progress','submitted','merged'].map(s=>`<option value="${s}" ${o.status===s?'selected':''}>${sl[s]}</option>`).join('')}</select>
+      <button class="btn btn-sm btn-del" onclick="deleteOSS(${o.id})">✕</button>
+    </div>
+  </div>`).join('');
 }
 
-function updateAppStatus(id, val) {
-  const a = state.apps.find(x => x.id === id);
-  if (a) { a.status = val; renderApps(); saveState(); }
-}
+function toggleMilestone(id){state.milestones[id]=!state.milestones[id];renderMilestones();save();}
+function toggleRes(id,e){if(e)e.stopPropagation();state.resOpen[id]=!state.resOpen[id];renderMilestones();save();}
 
-function deleteApp(id) {
-  state.apps = state.apps.filter(x => x.id !== id);
-  renderApps(); saveState();
-}
-
-function renderApps() {
-  const statusLabel = { pending:'Pending', applied:'Applied', oa:'OA', interview:'Interview', offer:'Offer ✓', rejected:'Rejected' };
-  const tierLabel   = {
-    A:'<span class="tier-a">Tier A</span>',
-    B:'<span class="tier-b">Tier B</span>',
-    C:'<span style="color:var(--warn)">US 2027</span>',
-    INT:'<span style="color:var(--accent2)">Intern</span>'
-  };
-
-  document.getElementById('count-total').textContent  = state.apps.length;
-  document.getElementById('count-active').textContent = state.apps.filter(a=>a.status==='applied'||a.status==='oa').length;
-  document.getElementById('count-int').textContent    = state.apps.filter(a=>a.status==='interview').length;
-  document.getElementById('count-offer').textContent  = state.apps.filter(a=>a.status==='offer').length;
-
-  const tbody = document.getElementById('appTableBody');
-  const empty = document.getElementById('apps-empty');
-  if (!state.apps.length) { tbody.innerHTML=''; empty.style.display='block'; return; }
-  empty.style.display='none';
-  tbody.innerHTML = state.apps.map(a => `
-    <tr>
-      <td style="font-weight:500">${a.company}</td>
-      <td style="color:var(--muted)">${a.role||'—'}</td>
-      <td>${tierLabel[a.tier]||a.tier}</td>
-      <td>
-        <select class="sel" style="padding:3px 8px;font-size:11px" onchange="updateAppStatus(${a.id},this.value)">
-          ${Object.keys(statusLabel).map(s=>`<option value="${s}" ${a.status===s?'selected':''}>${statusLabel[s]}</option>`).join('')}
-        </select>
-      </td>
-      <td style="color:var(--muted);font-size:11px">${a.date}</td>
-      <td><button class="btn btn-sm btn-del" onclick="deleteApp(${a.id})">✕</button></td>
-    </tr>`).join('');
-}
-
-function addOSS() {
-  const repo   = document.getElementById('oss-repo').value.trim();
-  const desc   = document.getElementById('oss-desc').value.trim();
-  const status = document.getElementById('oss-status').value;
-  if (!repo) return;
-  state.oss.unshift({ id: Date.now(), repo, desc, status });
-  document.getElementById('oss-repo').value = '';
-  document.getElementById('oss-desc').value = '';
-  renderOSS(); saveState();
-}
-
-function updateOSSStatus(id, val) {
-  const o = state.oss.find(x => x.id === id);
-  if (o) { o.status = val; renderOSS(); saveState(); }
-}
-
-function deleteOSS(id) {
-  state.oss = state.oss.filter(x => x.id !== id);
-  renderOSS(); saveState();
-}
-
-function renderOSS() {
-  const statusLabel = { planned:'Planned', 'in-progress':'In Progress', submitted:'Submitted →', merged:'Merged ✓' };
-  document.getElementById('oss-merged').textContent = state.oss.filter(x=>x.status==='merged').length;
-  document.getElementById('oss-wip').textContent    = state.oss.filter(x=>x.status==='in-progress'||x.status==='submitted').length;
-  document.getElementById('oss-total').textContent  = state.oss.length;
-
-  const container = document.getElementById('ossCards');
-  const empty     = document.getElementById('oss-empty');
-  if (!state.oss.length) { container.innerHTML=''; empty.style.display='block'; return; }
-  empty.style.display='none';
-  container.innerHTML = state.oss.map(o => `
-    <div class="oss-card">
-      <div>
-        <div class="oss-repo">${o.repo}</div>
-        <div class="oss-desc">${o.desc||'No description'}</div>
-      </div>
-      <div class="oss-actions">
-        <select class="sel" style="padding:3px 8px;font-size:11px" onchange="updateOSSStatus(${o.id},this.value)">
-          ${['planned','in-progress','submitted','merged'].map(s=>`<option value="${s}" ${o.status===s?'selected':''}>${statusLabel[s]}</option>`).join('')}
-        </select>
-        <button class="btn btn-sm btn-del" onclick="deleteOSS(${o.id})">✕</button>
-      </div>
-    </div>`).join('');
-}
-
-function toggleMilestone(id) {
-  state.milestones[id] = !state.milestones[id];
-  renderMilestones(); saveState();
-}
-
-function renderMilestones() {
-  document.getElementById('milestonesContainer').innerHTML = MILESTONES.map(block => {
-    const done = block.items.filter(i => state.milestones[i.id]).length;
-    return `
-      <div class="month-block">
-        <div class="month-title">
-          ${block.month}
-          <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono'">${done}/${block.items.length}</span>
-        </div>
-        ${block.items.map(item => `
-          <div class="milestone-item ${state.milestones[item.id]?'done':''}" onclick="toggleMilestone('${item.id}')">
+function renderMilestones(){
+  document.getElementById('milestonesContainer').innerHTML=MS.map(block=>{
+    const done=block.items.filter(i=>state.milestones[i.id]).length;
+    return `<div class="month-block">
+      <div class="month-title">${block.month} <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono'">${done}/${block.items.length}</span></div>
+      ${block.items.map(item=>{
+        const hasR=item.res&&item.res.length>0;
+        const open=state.resOpen[item.id];
+        return `<div class="milestone-item ${state.milestones[item.id]?'done':''}">
+          <div class="milestone-row" onclick="toggleMilestone('${item.id}')">
             <div class="milestone-check">${state.milestones[item.id]?'✓':''}</div>
-            <div class="milestone-text">
-              ${item.text}
-              ${item.priority==='now'  ? '<span class="priority-tag p-now">NOW</span>'  : ''}
-              ${item.priority==='high' ? '<span class="priority-tag p-high">HIGH</span>' : ''}
+            <div class="milestone-text">${item.text}${item.priority==='now'?'<span class="priority-tag p-now">NOW</span>':''}${item.priority==='high'?'<span class="priority-tag p-high">HIGH</span>':''}</div>
+          </div>
+          ${hasR?`
+          <div class="res-toggle"><button class="res-btn" onclick="toggleRes('${item.id}',event)">${open?'▾ hide resources':'▸ resources ('+item.res.length+')'}</button></div>
+          <div class="res-panel ${open?'open':''}">
+            <div class="res-list">${item.res.map(r=>`
+              <a class="res-link" href="${r.u}" target="_blank" rel="noopener">
+                <span class="res-icon">${r.i}</span>
+                <div><div class="res-title">${r.t}</div><div class="res-sub">${r.s}</div></div>
+              </a>`).join('')}
             </div>
-          </div>`).join('')}
-      </div>`;
+          </div>`:''}
+        </div>`;
+      }).join('')}
+    </div>`;
   }).join('');
 }
 
-function switchTab(name) {
-  ['dsa','apps','oss','milestones'].forEach(t => {
-    document.getElementById('tab-'+t).style.display = t===name ? 'block' : 'none';
-  });
-  document.querySelectorAll('.tab').forEach((el,i) => {
-    el.classList.toggle('active', ['dsa','apps','oss','milestones'][i]===name);
-  });
+function switchTab(name){
+  ['dsa','apps','oss','milestones'].forEach(t=>document.getElementById('tab-'+t).style.display=t===name?'block':'none');
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['dsa','apps','oss','milestones'][i]===name));
 }
 
-function init() {
-  loadState();
-  document.getElementById('dateBadge').textContent = new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
-  ['total','hard','rating','mocks'].forEach(k => {
-    const el = document.getElementById('dsa-'+k);
-    if (el) el.value = state.dsa[k] || '';
-  });
-  updateProgress();
-  renderTopics();
-  renderApps();
-  renderOSS();
-  renderMilestones();
+function init(){
+  load();
+  document.getElementById('dateBadge').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+  ['total','hard','rating','mocks'].forEach(k=>{const el=document.getElementById('dsa-'+k);if(el)el.value=state.dsa[k]||'';});
+  const p=Math.min(100,Math.round((parseInt(state.dsa.total)||0)/500*100));
+  document.getElementById('dsa-bar').style.width=p+'%';
+  document.getElementById('dsa-pct').textContent=p+'%';
+  renderTopics();renderApps();renderOSS();renderMilestones();
 }
-
 init();
 </script>
 </body>
