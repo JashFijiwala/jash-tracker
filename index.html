@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>jash.tracker</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a24;
+    --border: #2a2a3a;
+    --accent: #7c6dfa;
+    --accent2: #fa6d9a;
+    --accent3: #6dfabd;
+    --text: #e8e6ff;
+    --muted: #6b6880;
+    --warn: #faa86d;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .noise {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.4;
+  }
+
+  .app { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  .header { margin-bottom: 32px; }
+  .header-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .logo { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+  .logo span { color: var(--accent); }
+  .date-badge { font-size: 11px; color: var(--muted); border: 1px solid var(--border); padding: 4px 10px; border-radius: 20px; }
+
+  .tabs { display: flex; gap: 2px; margin-bottom: 24px; background: var(--surface); padding: 4px; border-radius: 10px; border: 1px solid var(--border); overflow-x: auto; }
+  .tab { flex: 1; min-width: 80px; padding: 8px 12px; border: none; background: transparent; color: var(--muted); cursor: pointer; border-radius: 7px; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 500; transition: all 0.15s; white-space: nowrap; }
+  .tab.active { background: var(--surface2); color: var(--text); box-shadow: 0 0 0 1px var(--border); }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  .dsa-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .stat-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; }
+  .stat-input { width: 100%; background: transparent; border: none; font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--accent); outline: none; cursor: text; }
+  .stat-input.accent2 { color: var(--accent2); }
+  .stat-input.accent3 { color: var(--accent3); }
+  .stat-input.warn { color: var(--warn); }
+
+  .progress-bar-wrap { margin-bottom: 20px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+  .progress-bar { height: 6px; background: var(--surface2); border-radius: 99px; overflow: hidden; border: 1px solid var(--border); }
+  .progress-fill { height: 100%; border-radius: 99px; transition: width 0.4s; }
+  .fill-accent { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+
+  .topic-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .topic-item { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.15s; user-select: none; }
+  .topic-item:hover { border-color: var(--accent); }
+  .topic-item.done { border-color: var(--accent3); background: rgba(109, 250, 189, 0.05); }
+  .topic-dot { width: 8px; height: 8px; border-radius: 50%; border: 2px solid var(--muted); flex-shrink: 0; transition: all 0.15s; }
+  .topic-item.done .topic-dot { background: var(--accent3); border-color: var(--accent3); }
+  .topic-name { font-size: 12px; flex: 1; }
+  .topic-count { font-size: 10px; color: var(--muted); }
+
+  .add-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .inp { flex: 1; min-width: 100px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 12px; outline: none; transition: border-color 0.15s; }
+  .inp:focus { border-color: var(--accent); }
+  .sel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 12px; outline: none; cursor: pointer; }
+  .btn { padding: 9px 16px; background: var(--accent); border: none; border-radius: 8px; color: white; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; cursor: pointer; transition: opacity 0.15s; white-space: nowrap; }
+  .btn:hover { opacity: 0.85; }
+  .btn-sm { padding: 4px 10px; font-size: 11px; border-radius: 6px; }
+  .btn-del { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+  .btn-del:hover { border-color: var(--accent2); color: var(--accent2); opacity: 1; }
+
+  .app-table { width: 100%; border-collapse: collapse; }
+  .app-table th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  .app-table td { padding: 10px 12px; border-bottom: 1px solid rgba(42,42,58,0.5); font-size: 12px; vertical-align: middle; }
+  .app-table tr:hover td { background: var(--surface); }
+  .app-table tr:last-child td { border-bottom: none; }
+
+  .badge { display: inline-block; padding: 3px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; }
+  .badge-applied { background: rgba(124,109,250,0.15); color: var(--accent); border: 1px solid rgba(124,109,250,0.3); }
+  .badge-oa { background: rgba(250,168,109,0.15); color: var(--warn); border: 1px solid rgba(250,168,109,0.3); }
+  .badge-interview { background: rgba(250,109,154,0.15); color: var(--accent2); border: 1px solid rgba(250,109,154,0.3); }
+  .badge-offer { background: rgba(109,250,189,0.15); color: var(--accent3); border: 1px solid rgba(109,250,189,0.3); }
+  .badge-rejected { background: rgba(107,104,128,0.15); color: var(--muted); border: 1px solid rgba(107,104,128,0.3); }
+  .badge-pending { background: rgba(107,104,128,0.1); color: var(--muted); border: 1px solid var(--border); }
+
+  .tier-a { color: var(--accent3); }
+  .tier-b { color: var(--accent); }
+
+  .oss-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 8px; display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: start; }
+  .oss-repo { color: var(--accent); font-weight: 500; font-size: 13px; }
+  .oss-desc { color: var(--muted); font-size: 11px; margin-top: 4px; }
+  .oss-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+
+  .month-block { margin-bottom: 24px; }
+  .month-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 800; color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .month-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .milestone-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(42,42,58,0.4); cursor: pointer; user-select: none; }
+  .milestone-item:last-child { border-bottom: none; }
+  .milestone-check { width: 16px; height: 16px; border: 2px solid var(--border); border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; transition: all 0.15s; margin-top: 1px; }
+  .milestone-item.done .milestone-check { background: var(--accent3); border-color: var(--accent3); color: #0a0a0f; }
+  .milestone-text { font-size: 12px; line-height: 1.5; }
+  .milestone-item.done .milestone-text { color: var(--muted); text-decoration: line-through; }
+  .priority-tag { display: inline-block; margin-left: 6px; font-size: 10px; padding: 1px 6px; border-radius: 4px; }
+  .p-now { background: rgba(250,109,154,0.2); color: var(--accent2); }
+  .p-high { background: rgba(124,109,250,0.2); color: var(--accent); }
+
+  .section-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 14px; }
+  .empty-state { text-align: center; color: var(--muted); padding: 40px; font-size: 12px; }
+  .scroll-x { overflow-x: auto; }
+  select option { background: #1a1a24; }
+</style>
+</head>
+<body>
+<div class="noise"></div>
+<div class="app">
+
+  <div class="header">
+    <div class="header-top">
+      <div class="logo">jash<span>.</span>tracker</div>
+      <div class="date-badge" id="dateBadge"></div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('dsa')">DSA</button>
+    <button class="tab" onclick="switchTab('apps')">Applications</button>
+    <button class="tab" onclick="switchTab('oss')">Open Source</button>
+    <button class="tab" onclick="switchTab('milestones')">Milestones</button>
+  </div>
+
+  <!-- DSA TAB -->
+  <div id="tab-dsa">
+    <div class="dsa-grid">
+      <div class="stat-card">
+        <div class="stat-label">Problems Solved</div>
+        <input class="stat-input" id="dsa-total" type="number" min="0" placeholder="0" oninput="saveStats()">
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Hard Problems</div>
+        <input class="stat-input accent2" id="dsa-hard" type="number" min="0" placeholder="0" oninput="saveStats()">
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">LC Contest Rating</div>
+        <input class="stat-input accent3" id="dsa-rating" type="number" min="0" placeholder="0" oninput="saveStats()">
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Mock Interviews</div>
+        <input class="stat-input warn" id="dsa-mocks" type="number" min="0" placeholder="0" oninput="saveStats()">
+      </div>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-label"><span>Progress to 500 problems</span><span id="dsa-pct">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill fill-accent" id="dsa-bar" style="width:0%"></div></div>
+    </div>
+
+    <div class="section-title">Topics</div>
+    <div class="topic-grid" id="topicGrid"></div>
+  </div>
+
+  <!-- APPLICATIONS TAB -->
+  <div id="tab-apps" style="display:none">
+    <div class="add-row">
+      <input class="inp" id="app-company" placeholder="Company" style="max-width:160px">
+      <input class="inp" id="app-role" placeholder="Role" style="max-width:160px">
+      <select class="sel" id="app-tier">
+        <option value="A">Tier A (Indian)</option>
+        <option value="B">Tier B (AI startup)</option>
+        <option value="C">US 2027</option>
+        <option value="INT">Internship</option>
+      </select>
+      <select class="sel" id="app-status">
+        <option value="pending">Pending</option>
+        <option value="applied">Applied</option>
+        <option value="oa">OA</option>
+        <option value="interview">Interview</option>
+        <option value="offer">Offer</option>
+        <option value="rejected">Rejected</option>
+      </select>
+      <button class="btn btn-sm" onclick="addApp()">+ Add</button>
+    </div>
+
+    <div class="dsa-grid" style="margin-bottom:20px">
+      <div class="stat-card"><div class="stat-label">Total Applied</div><div class="stat-value" style="color:var(--accent)" id="count-total">0</div></div>
+      <div class="stat-card"><div class="stat-label">Active / OA</div><div class="stat-value" style="color:var(--warn)" id="count-active">0</div></div>
+      <div class="stat-card"><div class="stat-label">Interviews</div><div class="stat-value" style="color:var(--accent2)" id="count-int">0</div></div>
+      <div class="stat-card"><div class="stat-label">Offers</div><div class="stat-value" style="color:var(--accent3)" id="count-offer">0</div></div>
+    </div>
+
+    <div class="scroll-x">
+      <table class="app-table">
+        <thead>
+          <tr>
+            <th>Company</th><th>Role</th><th>Tier</th><th>Status</th><th>Date</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="appTableBody"></tbody>
+      </table>
+      <div id="apps-empty" class="empty-state" style="display:none">No applications yet. Add your first one above.</div>
+    </div>
+  </div>
+
+  <!-- OSS TAB -->
+  <div id="tab-oss" style="display:none">
+    <div class="add-row">
+      <input class="inp" id="oss-repo" placeholder="Repo (e.g. supabase/supabase)">
+      <input class="inp" id="oss-desc" placeholder="What you did / PR title">
+      <select class="sel" id="oss-status">
+        <option value="planned">Planned</option>
+        <option value="in-progress">In Progress</option>
+        <option value="submitted">Submitted</option>
+        <option value="merged">Merged ✓</option>
+      </select>
+      <button class="btn btn-sm" onclick="addOSS()">+ Add</button>
+    </div>
+
+    <div class="dsa-grid" style="margin-bottom:20px">
+      <div class="stat-card"><div class="stat-label">PRs Merged</div><div class="stat-value" style="color:var(--accent3)" id="oss-merged">0</div></div>
+      <div class="stat-card"><div class="stat-label">In Progress</div><div class="stat-value" style="color:var(--accent)" id="oss-wip">0</div></div>
+      <div class="stat-card"><div class="stat-label">Total Contributions</div><div class="stat-value" style="color:var(--warn)" id="oss-total">0</div></div>
+    </div>
+
+    <div id="ossCards"></div>
+    <div id="oss-empty" class="empty-state" style="display:none">No OSS contributions yet. Start with supabase/supabase or langchain-ai/langchain.</div>
+  </div>
+
+  <!-- MILESTONES TAB -->
+  <div id="tab-milestones" style="display:none">
+    <div id="milestonesContainer"></div>
+  </div>
+
+</div>
+
+<script>
+const STORAGE_KEY = 'jash_tracker_v2';
+
+const TOPICS = [
+  {id:'arrays',   name:'Arrays & Hashing',              target:60},
+  {id:'twoptr',   name:'Two Pointers / Sliding Window', target:40},
+  {id:'bsearch',  name:'Binary Search',                 target:30},
+  {id:'linked',   name:'Linked Lists',                  target:25},
+  {id:'stacks',   name:'Stacks / Monotonic',            target:25},
+  {id:'recursion',name:'Recursion & Backtracking',      target:30},
+  {id:'bits',     name:'Bit Manipulation',              target:15},
+  {id:'trees',    name:'Trees & BST',                   target:40},
+  {id:'heaps',    name:'Heaps & Priority Queue',        target:20},
+  {id:'tries',    name:'Tries',                         target:10},
+  {id:'graphs',   name:'Graphs (BFS/DFS/Dijkstra)',     target:40},
+  {id:'union',    name:'Union-Find',                    target:12},
+  {id:'dp',       name:'Dynamic Programming (Foundations)', target:50},
+  {id:'dpAdv',    name:'Advanced DP (Aditya Verma)',    target:40},
+  {id:'greedy',   name:'Greedy',                        target:20},
+  {id:'sysdesign',name:'System Design Basics',          target:10},
+];
+
+const MILESTONES = [
+  {
+    month: 'April 27 — RIGHT NOW',
+    items: [
+      {id:'m1', text:'Apply Amazon 6-month SDE Intern (July–Dec) at amazon.jobs', priority:'now'},
+      {id:'m2', text:'Set up Claude Cowork folder (ABOUT ME / OUTPUTS / TEMPLATES)', priority:'now'},
+      {id:'m3', text:'Create about-me.md using Cowork interview prompt', priority:'high'},
+    ]
+  },
+  {
+    month: 'May 2026',
+    items: [
+      {id:'m4',  text:'Hit 100 LeetCode problems — Arrays → Hashing → Two Pointers → Sliding Window → Binary Search', priority:'high'},
+      {id:'m5',  text:'Pick flagship project idea (RAG app / MCP agent / browser extension)', priority:'high'},
+      {id:'m6',  text:'LinkedIn outreach: 3–5 SDE-1/2 at Razorpay, Zepto, PhonePe'},
+      {id:'m7',  text:'Apply 2–3 Tier-B AI startups (Composio, Sarvam AI, Portkey) via Wellfound'},
+      {id:'m8',  text:'Set up Simplify.jobs account for US app tracking'},
+    ]
+  },
+  {
+    month: 'June 2026',
+    items: [
+      {id:'m9',  text:'Hit 240 LeetCode — introduce LC Weekly Contest', priority:'high'},
+      {id:'m10', text:'Ship flagship project live with real URL and 50–100 real users', priority:'high'},
+      {id:'m11', text:'Get first OSS PR merged (supabase/supabase or langchain-ai/langchain)', priority:'high'},
+      {id:'m12', text:'Apply Flipkart GRiD + Juspay Hiring Challenge (check Unstop)'},
+      {id:'m13', text:'10–15 off-campus apps via Instahyre / Cutshort / Wellfound'},
+      {id:'m14', text:'Contest rating target: 1,400–1,500'},
+    ]
+  },
+  {
+    month: 'July 2026',
+    items: [
+      {id:'m15', text:'Hit 400 LeetCode — 2 mocks/week, heavy hards', priority:'high'},
+      {id:'m16', text:'Apply Amazon ML Summer School (closes ~July 31)', priority:'high'},
+      {id:'m17', text:'Apply LFX Mentorship Term 2 (window: July 30 – Aug 12)', priority:'high'},
+      {id:'m18', text:'Submit Amazon SWE Intern 2027 application from India', priority:'high'},
+      {id:'m19', text:'Submit Databricks Summer 2027 intern application'},
+      {id:'m20', text:'Get 2nd substantive OSS PR merged'},
+      {id:'m21', text:'Polish US-format resume (1 page, quantified bullets)'},
+      {id:'m22', text:'Contest rating target: 1,600–1,650'},
+    ]
+  },
+  {
+    month: 'August 2026',
+    items: [
+      {id:'m23', text:'Hit 500 LeetCode — consolidate and revise only, no new topics', priority:'high'},
+      {id:'m24', text:'Submit Microsoft + Meta Summer 2027 apps before flying out', priority:'high'},
+      {id:'m25', text:'Apply MLH Fellowship Fall 2026 (~August deadline)', priority:'high'},
+      {id:'m26', text:'Set up Google Voice US number'},
+      {id:'m27', text:'GitHub: 3–5 pinned repos, all live URLs + architecture READMEs'},
+      {id:'m28', text:'LinkedIn updated: Stony Brook admit, MIND 2025 pub, shipped project'},
+      {id:'m29', text:'Get referrals at 3+ US companies via LinkedIn alumni search'},
+      {id:'m30', text:'Contest rating target: 1,700+'},
+      {id:'m31', text:'✈ FLY TO STONY BROOK', priority:'now'},
+    ]
+  },
+];
+
+let state = {
+  dsa: { total:'', hard:'', rating:'', mocks:'' },
+  topics: {},
+  apps: [],
+  oss: [],
+  milestones: {}
+};
+
+function loadState() {
+  try { const r = localStorage.getItem(STORAGE_KEY); if (r) state = {...state,...JSON.parse(r)}; } catch(e){}
+}
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+}
+
+function saveStats() {
+  state.dsa.total  = document.getElementById('dsa-total').value;
+  state.dsa.hard   = document.getElementById('dsa-hard').value;
+  state.dsa.rating = document.getElementById('dsa-rating').value;
+  state.dsa.mocks  = document.getElementById('dsa-mocks').value;
+  updateProgress();
+  saveState();
+}
+
+function updateProgress() {
+  const total = parseInt(state.dsa.total) || 0;
+  const pct = Math.min(100, Math.round((total / 500) * 100));
+  document.getElementById('dsa-bar').style.width = pct + '%';
+  document.getElementById('dsa-pct').textContent = pct + '%';
+}
+
+function renderTopics() {
+  document.getElementById('topicGrid').innerHTML = TOPICS.map(t => `
+    <div class="topic-item ${state.topics[t.id] ? 'done' : ''}" onclick="toggleTopic('${t.id}')">
+      <div class="topic-dot"></div>
+      <div class="topic-name">${t.name}</div>
+      <div class="topic-count">~${t.target}</div>
+    </div>`).join('');
+}
+
+function toggleTopic(id) {
+  state.topics[id] = !state.topics[id];
+  renderTopics(); saveState();
+}
+
+function addApp() {
+  const company = document.getElementById('app-company').value.trim();
+  const role    = document.getElementById('app-role').value.trim();
+  const tier    = document.getElementById('app-tier').value;
+  const status  = document.getElementById('app-status').value;
+  if (!company) return;
+  state.apps.unshift({
+    id: Date.now(), company, role, tier, status,
+    date: new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})
+  });
+  document.getElementById('app-company').value = '';
+  document.getElementById('app-role').value = '';
+  renderApps(); saveState();
+}
+
+function updateAppStatus(id, val) {
+  const a = state.apps.find(x => x.id === id);
+  if (a) { a.status = val; renderApps(); saveState(); }
+}
+
+function deleteApp(id) {
+  state.apps = state.apps.filter(x => x.id !== id);
+  renderApps(); saveState();
+}
+
+function renderApps() {
+  const statusLabel = { pending:'Pending', applied:'Applied', oa:'OA', interview:'Interview', offer:'Offer ✓', rejected:'Rejected' };
+  const tierLabel   = {
+    A:'<span class="tier-a">Tier A</span>',
+    B:'<span class="tier-b">Tier B</span>',
+    C:'<span style="color:var(--warn)">US 2027</span>',
+    INT:'<span style="color:var(--accent2)">Intern</span>'
+  };
+
+  document.getElementById('count-total').textContent  = state.apps.length;
+  document.getElementById('count-active').textContent = state.apps.filter(a=>a.status==='applied'||a.status==='oa').length;
+  document.getElementById('count-int').textContent    = state.apps.filter(a=>a.status==='interview').length;
+  document.getElementById('count-offer').textContent  = state.apps.filter(a=>a.status==='offer').length;
+
+  const tbody = document.getElementById('appTableBody');
+  const empty = document.getElementById('apps-empty');
+  if (!state.apps.length) { tbody.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  tbody.innerHTML = state.apps.map(a => `
+    <tr>
+      <td style="font-weight:500">${a.company}</td>
+      <td style="color:var(--muted)">${a.role||'—'}</td>
+      <td>${tierLabel[a.tier]||a.tier}</td>
+      <td>
+        <select class="sel" style="padding:3px 8px;font-size:11px" onchange="updateAppStatus(${a.id},this.value)">
+          ${Object.keys(statusLabel).map(s=>`<option value="${s}" ${a.status===s?'selected':''}>${statusLabel[s]}</option>`).join('')}
+        </select>
+      </td>
+      <td style="color:var(--muted);font-size:11px">${a.date}</td>
+      <td><button class="btn btn-sm btn-del" onclick="deleteApp(${a.id})">✕</button></td>
+    </tr>`).join('');
+}
+
+function addOSS() {
+  const repo   = document.getElementById('oss-repo').value.trim();
+  const desc   = document.getElementById('oss-desc').value.trim();
+  const status = document.getElementById('oss-status').value;
+  if (!repo) return;
+  state.oss.unshift({ id: Date.now(), repo, desc, status });
+  document.getElementById('oss-repo').value = '';
+  document.getElementById('oss-desc').value = '';
+  renderOSS(); saveState();
+}
+
+function updateOSSStatus(id, val) {
+  const o = state.oss.find(x => x.id === id);
+  if (o) { o.status = val; renderOSS(); saveState(); }
+}
+
+function deleteOSS(id) {
+  state.oss = state.oss.filter(x => x.id !== id);
+  renderOSS(); saveState();
+}
+
+function renderOSS() {
+  const statusLabel = { planned:'Planned', 'in-progress':'In Progress', submitted:'Submitted →', merged:'Merged ✓' };
+  document.getElementById('oss-merged').textContent = state.oss.filter(x=>x.status==='merged').length;
+  document.getElementById('oss-wip').textContent    = state.oss.filter(x=>x.status==='in-progress'||x.status==='submitted').length;
+  document.getElementById('oss-total').textContent  = state.oss.length;
+
+  const container = document.getElementById('ossCards');
+  const empty     = document.getElementById('oss-empty');
+  if (!state.oss.length) { container.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  container.innerHTML = state.oss.map(o => `
+    <div class="oss-card">
+      <div>
+        <div class="oss-repo">${o.repo}</div>
+        <div class="oss-desc">${o.desc||'No description'}</div>
+      </div>
+      <div class="oss-actions">
+        <select class="sel" style="padding:3px 8px;font-size:11px" onchange="updateOSSStatus(${o.id},this.value)">
+          ${['planned','in-progress','submitted','merged'].map(s=>`<option value="${s}" ${o.status===s?'selected':''}>${statusLabel[s]}</option>`).join('')}
+        </select>
+        <button class="btn btn-sm btn-del" onclick="deleteOSS(${o.id})">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function toggleMilestone(id) {
+  state.milestones[id] = !state.milestones[id];
+  renderMilestones(); saveState();
+}
+
+function renderMilestones() {
+  document.getElementById('milestonesContainer').innerHTML = MILESTONES.map(block => {
+    const done = block.items.filter(i => state.milestones[i.id]).length;
+    return `
+      <div class="month-block">
+        <div class="month-title">
+          ${block.month}
+          <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono'">${done}/${block.items.length}</span>
+        </div>
+        ${block.items.map(item => `
+          <div class="milestone-item ${state.milestones[item.id]?'done':''}" onclick="toggleMilestone('${item.id}')">
+            <div class="milestone-check">${state.milestones[item.id]?'✓':''}</div>
+            <div class="milestone-text">
+              ${item.text}
+              ${item.priority==='now'  ? '<span class="priority-tag p-now">NOW</span>'  : ''}
+              ${item.priority==='high' ? '<span class="priority-tag p-high">HIGH</span>' : ''}
+            </div>
+          </div>`).join('')}
+      </div>`;
+  }).join('');
+}
+
+function switchTab(name) {
+  ['dsa','apps','oss','milestones'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===name ? 'block' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach((el,i) => {
+    el.classList.toggle('active', ['dsa','apps','oss','milestones'][i]===name);
+  });
+}
+
+function init() {
+  loadState();
+  document.getElementById('dateBadge').textContent = new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+  ['total','hard','rating','mocks'].forEach(k => {
+    const el = document.getElementById('dsa-'+k);
+    if (el) el.value = state.dsa[k] || '';
+  });
+  updateProgress();
+  renderTopics();
+  renderApps();
+  renderOSS();
+  renderMilestones();
+}
+
+init();
+</script>
+</body>
+</html>
