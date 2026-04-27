@@ -85,6 +85,15 @@
   .res-icon{font-size:15px;flex-shrink:0;margin-top:1px}
   .res-title{font-size:11px;color:var(--text);font-weight:500;margin-bottom:2px}
   .res-sub{font-size:10px;color:var(--muted);line-height:1.4}
+  .panel-toggles{display:flex;flex-wrap:wrap;gap:6px;padding:0 0 7px 26px}
+  .notes-btn{font-size:10px;color:var(--warn);border:1px solid rgba(250,168,109,.35);border-radius:4px;padding:2px 8px;background:transparent;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .15s}
+  .notes-btn:hover{border-color:var(--warn);background:rgba(250,168,109,.08)}
+  .milestone-item.done .notes-btn{opacity:.35}
+  .notes-panel{display:none;padding:0 0 10px 26px}
+  .notes-panel.open{display:block}
+  .notes-list{display:flex;flex-direction:column;gap:5px}
+  .note-item{display:flex;gap:9px;padding:8px 11px;background:rgba(250,168,109,.05);border:1px solid rgba(250,168,109,.15);border-radius:7px;font-size:11px;line-height:1.6;color:var(--text)}
+  .note-num{color:var(--warn);font-weight:700;flex-shrink:0;min-width:14px;margin-top:1px}
   .section-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px}
   .empty-state{text-align:center;color:var(--muted);padding:40px;font-size:12px}
   .scroll-x{overflow-x:auto}
@@ -210,38 +219,98 @@ const TOPICS = [
 
 const MS = [
   {month:'April 27 — RIGHT NOW',items:[
-    {id:'m1',text:'Apply Amazon 6-month SDE Intern (July–Dec) at amazon.jobs',priority:'now',res:[
+    {id:'m1',text:'Apply Amazon 6-month SDE Intern (July–Dec) at amazon.jobs',priority:'now',n:[
+      'Apply today — amazon.jobs → search "SDE Intern" + India. Rolling basis, closes fast, no fixed deadline.',
+      'OA format: 2 DSA problems (1 easy + 1 medium) + work-style simulation MCQ. 90 minutes total. Most candidates fail here, not at the resume screen.',
+      'Before the OA: write out 16 STAR stories mapped to Amazon\'s 16 Leadership Principles. Behavioural rounds test these explicitly and you need them prepared in advance.',
+      'Timeline: apply March–May → OA invite within 1–2 weeks → interviews April–June → start date July.',
+      'If you get the OA, treat DSA prep as the priority for that week. The problems are medium-difficulty but timed strictly.',
+    ],res:[
       {i:'🔗',t:'Amazon Jobs — SDE Intern India',s:'Search "SDE Intern" with India filter',u:'https://www.amazon.jobs/en/search?base_query=software+development+engineer+intern&loc_query=India'},
       {i:'📋',t:'Amazon Leadership Principles',s:'Prep 16 STAR stories around these — mandatory for behavioural rounds',u:'https://www.amazon.jobs/content/en/our-workplace/leadership-principles'},
       {i:'💬',t:'LeetCode Discuss — Amazon OA patterns',s:'Recent OA questions shared by candidates',u:'https://leetcode.com/discuss/interview-question?currentPage=1&orderBy=hot&query=amazon+OA+intern'},
     ]},
-    {id:'m2',text:'Set up Claude Cowork folder (ABOUT ME / OUTPUTS / TEMPLATES)',priority:'now',res:[
+    {id:'m2',text:'Set up Claude Cowork folder (ABOUT ME / OUTPUTS / TEMPLATES)',priority:'now',n:[
+      'Download Claude desktop app at claude.ai/download. Requires Claude Pro (~$20/mo) — free tier won\'t work.',
+      'Create a folder on your Desktop: "Claude Cowork" with 3 subfolders: ABOUT ME, OUTPUTS, TEMPLATES.',
+      'Open Cowork, click the folder icon at the top, and select your Claude Cowork folder.',
+      'Also drop your resume.pdf and a file called target-companies.txt into ABOUT ME — Cowork reads everything in that folder.',
+      'Don\'t skip the about-me setup step. Without it every session starts blank and Cowork is just a file browser.',
+    ],res:[
       {i:'📖',t:'Ruben Hassid — Set up Claude Cowork (April 2026)',s:'The definitive setup guide, step by step',u:'https://ruben.substack.com/p/claude-cowork-20'},
       {i:'📖',t:'Ruben Hassid — Cowork + Projects',s:'Memory that persists between sessions',u:'https://ruben.substack.com/p/claude-cowork-project'},
       {i:'🌐',t:'claude-co.work — starter prompts',s:'Free resource with copy-paste prompts for Cowork',u:'https://claude-co.work'},
     ]},
-    {id:'m3',text:'Create about-me.md using Cowork interview prompt',priority:'high',res:[
+    {id:'m3',text:'Create about-me.md using Cowork interview prompt',priority:'high',n:[
+      'Paste this prompt into Cowork: "Interview me with 20 questions to build a complete about-me.md. Ask one at a time. Cover: background, goals, current situation, writing style, what I\'m building, what I want you to always remember. Keep under 2,000 tokens."',
+      'Answer every question fully and honestly — the quality of every future Cowork output depends directly on this file.',
+      'After finishing, run a second interview: "Now interview me to build an anti-AI-style.md file. Ask about phrases I hate, my natural tone, ideal sentence length, words I never use." Save it separately.',
+      'Update about-me.md every 2–3 weeks as your situation changes — new projects shipped, applications submitted, anything significant.',
+    ],res:[
       {i:'📖',t:'Ruben Hassid — Claude to sound like you',s:'How to build the voice file that makes Claude write like you',u:'https://ruben.substack.com/p/i-am-just-a-text-file'},
       {i:'🛠',t:'how-to-ai.guide',s:'Free download of Ruben\'s template folder + anti-AI writing file',u:'https://how-to-ai.guide'},
     ]},
   ]},
   {month:'May 2026',items:[
-    {id:'m4',text:'Hit 100 LeetCode — Arrays → Hashing → Two Pointers → Sliding Window → Binary Search',priority:'high',res:[
+    {id:'m4',text:'Hit 100 LeetCode — Arrays → Hashing → Two Pointers → Sliding Window → Binary Search',priority:'high',n:[
+      'Do Striver A2Z in strict order. Don\'t skip ahead to graphs or DP because they look interesting — foundation topics have patterns that every hard problem builds on.',
+      'Per topic: solve 3 easy problems to build pattern recognition, then go straight to mediums. Don\'t camp on easy problems.',
+      'Watch NeetCode only if stuck for more than 25 minutes — not before attempting. Watching first turns it into passive learning.',
+      'The next morning, re-solve every problem you got wrong the day before from scratch. No peeking. This is the most important daily habit.',
+      'In month 1, time loosely. From month 3, enforce a strict 35-minute limit per problem — that\'s roughly what you get in real OAs.',
+    ],res:[
       {i:'📋',t:'Striver A2Z Sheet — start here',s:'Most structured sheet for Indian hiring, covers every topic in order',u:'https://takeuforward.org/strivers-a2z-dsa-course/strivers-a2z-dsa-course-sheet-2/'},
       {i:'▶️',t:'Aditya Verma — Sliding Window playlist',s:'Best YouTube resource for sliding window patterns',u:'https://www.youtube.com/playlist?list=PL_z_8CaSLPWeM8BDJmIYDaoQ5zuwyxnfj'},
     ]},
-    {id:'m5',text:'Pick flagship project idea (RAG app / MCP agent / browser extension)',priority:'high',res:[
+    {id:'m5',text:'[OR] Pick flagship project idea (RAG app / MCP agent / browser extension)',priority:'high',n:[
+      'Rule 1: pick something you\'d actually use yourself. Motivation collapses on projects you don\'t care about.',
+      'Rule 2: AI must be the core, not a feature. A CRUD app with an AI button bolted on is not an AI project to a recruiter.',
+      'Rule 3: must be deployable as an MVP in one week. If scaffolding takes longer, the idea is too complex.',
+      'Validation test: can you explain what it does and who it\'s for in one sentence? If not, keep narrowing the scope.',
+      'Good litmus: would you pay ₹100/month for it? Would 10 of your friends?',
+      'Avoid saturated ideas in 2025–26: ChatGPT wrapper, "chat with your PDF", food delivery clone, generic todo app. Recruiters see hundreds of these.',
+    ],res:[
       {i:'📖',t:'Top 10 LLM & RAG projects for AI portfolio (2025–26)',s:'Concrete ideas that actually get recruiter attention',u:'https://growtechie.substack.com/p/top-10-llm-and-rag-projects-for-your'},
       {i:'🎓',t:'HuggingFace Learn — RAG & Agents course',s:'Free, hands-on, covers transformers / RAG / tool-use',u:'https://huggingface.co/learn'},
       {i:'🎓',t:'DeepLearning.AI — Building RAG Agents with LLMs',s:'Free 1-hour course, gives you the mental model before building',u:'https://www.deeplearning.ai/short-courses/building-agentic-rag-with-llamaindex/'},
       {i:'🛠',t:'LangChain JS — RAG quickstart',s:'Next.js + LangChain + Supabase pgvector — your exact stack',u:'https://js.langchain.com/docs/tutorials/rag/'},
       {i:'🛠',t:'Vercel AI SDK',s:'Cleanest way to add streaming AI to a Next.js app',u:'https://sdk.vercel.ai/docs/introduction'},
     ]},
-    {id:'m6',text:'LinkedIn outreach: 3–5 SDE-1/2 at Razorpay, Zepto, PhonePe',res:[
+    {id:'m5b',text:'[OR] Learn RLHF — foundations → implementation → fine-tune a small model',priority:'high',n:[
+      'Week 1: Watch Karpathy "Let\'s build GPT from scratch" (2h video). Then implement it yourself. Non-negotiable prerequisite — you must understand the transformer before fine-tuning it.',
+      'Week 2: Read Chip Huyen\'s RLHF post (30 min). Watch Yannic Kilcher\'s InstructGPT walkthrough (45 min). Then read the actual InstructGPT paper — it\'s 15 pages and your publication background means it won\'t be alien.',
+      'Week 3: Take the DeepLearning.AI RLHF course (free, ~3h). Read HuggingFace TRL docs in order: SFTTrainer → RewardTrainer → PPOTrainer. Also read Anthropic\'s Constitutional AI paper — directly relevant to AI lab roles.',
+      'Week 4: Implement the full SFT → reward model → PPO pipeline on GPT-2 using the TRL notebook on free Colab T4 GPU. Get it running end to end — this is what goes on your resume, not the reading.',
+      'Write a clear GitHub README: what model you trained, what the reward signal was, what changed after RLHF vs the base model, with a before/after sample.',
+      'RLHF knowledge opens Research Engineer doors at AI labs that a RAG app alone doesn\'t — it\'s the thing that makes your Springer pub and this project form a coherent narrative.',
+    ],res:[
+      {i:'📖',t:'Chip Huyen — RLHF overview (read this first)',s:'Best conceptual intro: reward models, PPO, KL divergence — written for engineers not researchers',u:'https://huyenchip.com/2023/05/02/rlhf.html'},
+      {i:'🎓',t:'DeepLearning.AI — Reinforcement Learning from Human Feedback',s:'Free course by the team that coined the term. Covers SFT → RM → PPO end-to-end with code',u:'https://www.deeplearning.ai/short-courses/reinforcement-learning-from-human-feedback/'},
+      {i:'🎓',t:'HuggingFace TRL library — official docs',s:'TRL is the standard library for RLHF. Read SFTTrainer → RewardTrainer → PPOTrainer in order',u:'https://huggingface.co/docs/trl/index'},
+      {i:'▶️',t:'Andrej Karpathy — "Let\'s build GPT from scratch" (prerequisite)',s:'If you haven\'t watched this, do it before touching RLHF. 2h video, builds the transformer you\'ll be fine-tuning',u:'https://www.youtube.com/watch?v=kCc8FmEb1nY'},
+      {i:'▶️',t:'Yannic Kilcher — InstructGPT paper walkthrough',s:'The original RLHF paper that powers ChatGPT explained line by line — 45 min, essential',u:'https://www.youtube.com/watch?v=VPRSBzXzavo'},
+      {i:'📄',t:'InstructGPT paper (Ouyang et al. 2022)',s:'Read the actual paper after watching Yannic\'s walkthrough. Your MIND pub background means you can handle it',u:'https://arxiv.org/abs/2203.02155'},
+      {i:'📄',t:'Constitutional AI — Anthropic (2022)',s:'The next evolution of RLHF. Read after InstructGPT — directly relevant to AI lab work',u:'https://arxiv.org/abs/2212.08073'},
+      {i:'🛠',t:'TRL — SFT + RLHF on a small model (hands-on notebook)',s:'Fine-tune GPT-2 or Llama-3.2-1B with RLHF in one Colab notebook. The right first implementation',u:'https://github.com/huggingface/trl/blob/main/examples/notebooks/gpt2-sentiment.ipynb'},
+      {i:'🛠',t:'Colab — free GPU for RLHF experiments',s:'Use T4 GPU (free tier). Llama-3.2-1B or GPT-2 fits comfortably. Don\'t attempt anything larger',u:'https://colab.research.google.com/'},
+      {i:'💡',t:'The 4-week RLHF learning path (how to sequence this)',s:'Week 1: transformers + Karpathy. Week 2: InstructGPT paper + Chip Huyen post. Week 3: TRL docs + DeepLearning.AI course. Week 4: implement SFT→RM→PPO on GPT-2',u:'https://www.reddit.com/r/MachineLearning/comments/13xt0xv/d_how_to_learn_rlhf/'},
+    ]},
+    {id:'m6',text:'LinkedIn outreach: 3–5 SDE-1/2 at Razorpay, Zepto, PhonePe',n:[
+      'Target SDE-1/SDE-2 who graduated 1–3 years ago, not seniors or managers. They remember being in your position and are most likely to help.',
+      'Message template (3 lines max): "Hi [name], I\'m a recent CS grad with a Springer/IEEE publication in [area]. I\'ve applied for [role] at [company]. Would you be open to giving me a referral? Happy to share my resume."',
+      'Do NOT ask to "pick their brain" or "grab a quick call" — ask directly for the referral. It\'s faster for them and gets a cleaner yes/no.',
+      'Send 10 DMs per target company. Expect 2–3 replies, 1 referral. That\'s the normal conversion rate — don\'t take silence personally.',
+      'Follow up once after 7 days if no reply. Then move on. Never follow up twice.',
+    ],res:[
       {i:'🔍',t:'LinkedIn Alumni Search',s:'Search company name + SDE + India — filter by 2nd connections',u:'https://www.linkedin.com/search/results/people/'},
       {i:'💡',t:'How to cold DM for referrals (what actually works)',s:'Lead with your Springer pub + project, ask for referral not "advice"',u:'https://www.linkedin.com/pulse/how-get-employee-referral-tech-company-youre-not-connected-/'},
     ]},
-    {id:'m7',text:'Apply 2–3 Tier-B AI startups (Composio, Sarvam AI, Portkey) via Wellfound',res:[
+    {id:'m7',text:'Apply 2–3 Tier-B AI startups (Composio, Sarvam AI, Portkey) via Wellfound',n:[
+      'Research each company for 10 minutes before applying — know what they build, who uses it, and what the team size is.',
+      'In your cover message, lead with the Springer publication. Most applicants to early-stage startups have nothing comparable — it gets you read when others don\'t.',
+      'Apply to 8–10, not just 2–3. Conversion rate at early-stage startups is low even for strong candidates.',
+      'On Wellfound, check if the founder is listed as active on the platform. If so, message them directly — founders read their own messages.',
+    ],res:[
       {i:'🔗',t:'Wellfound — India AI startups',s:'Filter: India + AI/ML + seed/Series A',u:'https://wellfound.com/jobs?role=engineer&country=IN&industry=Artificial+Intelligence'},
       {i:'🔗',t:'YC Work at a Startup — India filter',s:'YC-backed companies hiring in India, updated weekly',u:'https://www.workatastartup.com/companies?country=IN'},
       {i:'🔗',t:'Composio — open roles',s:'AI tool-use infra startup, perfect stack match for your profile',u:'https://composio.dev/careers'},
@@ -257,13 +326,26 @@ const MS = [
       {i:'🏆',t:'LeetCode Weekly Contest',s:'Every Saturday 8:00 AM IST. Aim to solve 2 problems in first 4 contests',u:'https://leetcode.com/contest/'},
       {i:'▶️',t:'Aditya Verma — DP playlist (start now)',s:'40+ videos, the single best DP resource in the Indian ecosystem',u:'https://www.youtube.com/playlist?list=PL_z_8CaSLPWekqhdCPmFohncHwz8TY2Go'},
     ]},
-    {id:'m10',text:'Ship flagship project live with real URL and 50–100 real users',priority:'high',res:[
+    {id:'m10',text:'Ship flagship project live with real URL and 50–100 real users',priority:'high',n:[
+      'Week 1: scaffold + auth + exactly one core feature working end to end. Nothing else.',
+      'Week 2: polish that one feature, add error handling, write README, deploy to Vercel.',
+      'Do NOT wait for it to be "ready." Ship at 70% polish. Real users will tell you what actually matters — you can\'t know in advance.',
+      'Where to share on launch day: r/webdev ("Show HN"-style post), IndieHackers "share what you\'ve built", 2–3 relevant Discord servers (e.g. Supabase Discord, LangChain Discord), and your LinkedIn.',
+      'README must have: one-sentence description, a live URL, a screenshot or GIF, tech stack, and a "How it works" section with a simple architecture diagram. That\'s it.',
+    ],res:[
       {i:'🛠',t:'Vercel — deploy Next.js in 2 minutes',s:'Free tier, instant deploys, perfect for your stack',u:'https://vercel.com/new'},
       {i:'🛠',t:'Railway.app — backend / DB hosting',s:'Easiest way to host anything that isn\'t purely frontend',u:'https://railway.app'},
       {i:'📣',t:'IndieHackers — share what you\'ve built',s:'Post here first — active community, real feedback, early users',u:'https://www.indiehackers.com/post/share-what-youve-built'},
       {i:'📣',t:'ProductHunt — Coming Soon page',s:'Submit a Coming Soon page to collect early signups before launch',u:'https://www.producthunt.com/posts/new'},
     ]},
-    {id:'m11',text:'Get first OSS PR merged (supabase/supabase or langchain-ai/langchain)',priority:'high',res:[
+    {id:'m11',text:'Get first OSS PR merged (supabase/supabase or langchain-ai/langchain)',priority:'high',n:[
+      'Week 1: set up local dev environment, read CONTRIBUTING.md fully, join the project\'s Discord and lurk for a few days to understand what maintainers care about.',
+      'Week 2: find a good-first-issue that matches your stack (TypeScript/Python). Before starting, comment on the issue: "I\'d like to work on this" — avoids duplicate work.',
+      'Week 3: submit the PR. Keep it strictly focused on one thing. Don\'t fix unrelated issues in the same PR even if you notice them.',
+      'Do NOT make typo fixes or docs-only PRs as your first contribution. Maintainers notice and it signals low effort.',
+      'Write a clear PR description: what the problem was, what your solution does, how you tested it. Link to the issue it closes.',
+      'If a maintainer asks for changes, respond within 24 hours. Slow responses are the most common reason PRs go stale.',
+    ],res:[
       {i:'🔍',t:'goodfirstissue.dev — TypeScript filter',s:'Best discovery tool for beginner-friendly issues in your stack',u:'https://goodfirstissue.dev/language/typescript'},
       {i:'🔗',t:'supabase/supabase — CONTRIBUTING.md',s:'Start with JS client or Studio dashboard issues. Welcoming maintainers',u:'https://github.com/supabase/supabase/blob/master/CONTRIBUTING.md'},
       {i:'🔗',t:'langchain-ai/langchain — good first issues',s:'New vectorstore or chat-model integrations are the cleanest PRs',u:'https://github.com/langchain-ai/langchain/contribute'},
@@ -283,20 +365,41 @@ const MS = [
     {id:'m14',text:'Contest rating target: 1,400–1,500'},
   ]},
   {month:'July 2026',items:[
-    {id:'m15',text:'Hit 400 LeetCode — 2 mocks/week, heavy hards',priority:'high',res:[
+    {id:'m15',text:'Hit 400 LeetCode — 2 mocks/week, heavy hards',priority:'high',n:[
+      'Do at least 1 mock interview before any real OA. Don\'t walk into Amazon\'s test cold.',
+      'On Pramp: record your session. Watch it back — painful but you\'ll pinpoint exactly where you lose time.',
+      'Enforce the 35-minute hard limit per problem during mocks. No exceptions. This is real OA pacing.',
+      'Practice talking out loud the entire time. Silence hurts you in interviews — the interviewer needs to follow your thinking even when you\'re stuck.',
+      'After every mock: write down the one pattern you struggled with most, then solve 5 more problems of that exact type the next day.',
+    ],res:[
       {i:'🎤',t:'interviewing.io — free mock interviews',s:'Practice with real engineers, recordings for self-review',u:'https://interviewing.io'},
       {i:'🎤',t:'Pramp — peer mock interviews',s:'Free, peer-to-peer, good for explaining solutions out loud',u:'https://www.pramp.com'},
       {i:'📖',t:'Hello Interview — system design prep',s:'Start SD basics now. Free tier is sufficient for your timeline',u:'https://www.hellointerview.com'},
     ]},
-    {id:'m16',text:'Apply Amazon ML Summer School (closes ~July 31)',priority:'high',res:[
+    {id:'m16',text:'Apply Amazon ML Summer School (closes ~July 31)',priority:'high',n:[
+      'Application is a short form + an online test: ML theory MCQ + 2 DSA medium problems. Not a heavy commitment to apply.',
+      'Mention your Springer publication prominently in the application form — very few applicants have a peer-reviewed pub.',
+      'The school itself (5 weekends in August, remote, free) is training run by Amazon Scientists — not a direct internship pipeline.',
+      'Treat it as a long-game networking event. Connections made during the school occasionally convert to intern referrals at Amazon and partner companies.',
+    ],res:[
       {i:'🔗',t:'Amazon ML Summer School — official page',s:'Free 5-weekend training. Springer pub strengthens your application',u:'https://www.amazon.science/academic-engagements/amazon-launches-annual-ml-summer-school-in-india'},
       {i:'📋',t:'How to prepare for AMLS selection test',s:'MCQ ML theory + 2 DSA mediums. Apply as soon as it opens',u:'https://www.lets-code.co.in/blogs/amazon-ml-summer-school-2025-how-to-apply-prepare-and-get-selected/'},
     ]},
-    {id:'m17',text:'Apply LFX Mentorship Term 2 (window: July 30 – Aug 12)',priority:'high',res:[
+    {id:'m17',text:'Apply LFX Mentorship Term 2 (window: July 30 – Aug 12)',priority:'high',n:[
+      'Set a phone reminder for July 30 right now. The 2-week window is strict — there is no late application.',
+      'Application requires: 2–3 PR links to the target project, a motivation statement, and your background. You need existing contributions to apply credibly — this is why OSS work starts in June.',
+      'Stipend is $3,000 for 12 weeks, fully remote. The term runs Sept–Nov, which overlaps slightly with Stony Brook start — confirm with your advisor that CPT isn\'t needed for a remote international stipend.',
+      'If you don\'t get in this cycle, the Term 3 cycle runs in early 2027 — your Stony Brook enrollment makes you eligible and your contribution record will be stronger by then.',
+    ],res:[
       {i:'🔗',t:'LFX Mentorship — apply here',s:'$3,000 stipend, remote, 12 weeks. Applications open July 30 — apply immediately',u:'https://mentorship.lfx.linuxfoundation.org/'},
       {i:'📋',t:'LFX application guide',s:'Reference your OSS PRs + Springer pub — they weigh both',u:'https://github.com/cncf/mentoring/blob/main/programs/lfx-mentorship/README.md'},
     ]},
-    {id:'m18',text:'Submit Amazon SWE Intern 2027 application from India',priority:'high',res:[
+    {id:'m18',text:'Submit Amazon SWE Intern 2027 application from India',priority:'high',n:[
+      'Apply the day the listing appears — Amazon fills on rolling basis and closes when headcount is full, often before October.',
+      'OA format is identical to the India SDE Intern OA: 2 DSA problems + work simulation. Same prep applies.',
+      'You can apply from India before you fly. You don\'t need a US address or US phone number for the initial application.',
+      'Use Simplify.jobs to autofill the Workday application form — saves 20 minutes of copy-pasting.',
+    ],res:[
       {i:'🔗',t:'Amazon Jobs — SWE Intern 2027 (US)',s:'Opens July–August. Apply day it opens — Amazon reviews rolling',u:'https://www.amazon.jobs/en/search?base_query=software+development+engineer+intern&loc_query=United+States'},
       {i:'📋',t:'Pitt CSC Summer 2027 tracker',s:'Watch this daily in July — lists Amazon the day apps open',u:'https://github.com/SimplifyJobs/Summer2025-Internships'},
     ]},
@@ -307,7 +410,14 @@ const MS = [
       {i:'🔍',t:'up-for-grabs.net — TypeScript',s:'Broader OSS discovery, filter by language and label',u:'https://up-for-grabs.net/#/tags/typescript'},
       {i:'🔗',t:'PostHog/posthog — contributing',s:'Python + TS, hires from contributor pool, broad surface area',u:'https://github.com/PostHog/posthog/blob/master/CONTRIBUTING.md'},
     ]},
-    {id:'m21',text:'Polish US-format resume (1 page, quantified bullets)',res:[
+    {id:'m21',text:'Polish US-format resume (1 page, quantified bullets)',n:[
+      'Header: name + Google Voice number + GitHub URL + LinkedIn URL. Nothing else. No photo, no DOB, no address beyond "Stony Brook, NY".',
+      'Each bullet follows the same formula: [Strong action verb] + [what you built/did] + [quantified metric]. Example: "Built RAG pipeline reducing eval hallucination rate by 40% on internal benchmark."',
+      'Publications get their own section below Education. Format: Author, Author. "Title." Conference Name, Year. Publisher.',
+      'Skills section: list tech stack only — no "proficient in" or "familiar with" qualifiers. Recruiters ignore those.',
+      'Run through Resume Worded before submitting anywhere — it catches formatting issues that ATS systems reject.',
+      'One page strictly. If it spills onto page 2, cut from the bottom up — your oldest or least relevant items.',
+    ],res:[
       {i:'🛠',t:'Resume Worded',s:'Free AI feedback on your resume against FAANG standards',u:'https://resumeworded.com/resume-scanner'},
       {i:'📋',t:'r/cscareerquestions — resume wiki',s:'Canonical guide for US tech resume format',u:'https://www.reddit.com/r/cscareerquestions/wiki/faq_resumes/'},
       {i:'💡',t:'How to list publications on a resume',s:'Exact format for your MIND 2025 Springer paper listing',u:'https://zety.com/blog/publications-on-resume'},
@@ -316,11 +426,21 @@ const MS = [
   ]},
   {month:'August 2026',items:[
     {id:'m23',text:'Hit 500 LeetCode — consolidate only, no new topics',priority:'high'},
-    {id:'m24',text:'Submit Microsoft + Meta Summer 2027 apps before flying out',priority:'high',res:[
+    {id:'m24',text:'Submit Microsoft + Meta Summer 2027 apps before flying out',priority:'high',n:[
+      'Apply before your flight — you don\'t need a US address or phone number for the initial application. Submit from India.',
+      'Microsoft: apply to both the general SWE Intern role AND the Research Intern role. Your Springer pub makes the research track a realistic shot.',
+      'Meta: apply at metacareers.com/students — not LinkedIn. The LinkedIn "Easy Apply" goes to a different, lower-priority pipeline.',
+      'Both open August–September. Watch the Pitt CSC tracker daily starting August 1 to catch the exact day.',
+    ],res:[
       {i:'🔗',t:'Microsoft University Recruiting',s:'Opens Aug–Sep. Apply to both US and Microsoft IDC India',u:'https://careers.microsoft.com/v2/global/en/universityrecruiting.html'},
       {i:'🔗',t:'Meta University — Intern applications',s:'Opens Aug–Sep. E3 SWE intern. DSA + behavioural',u:'https://www.metacareers.com/careerprograms/pathways/internships/'},
     ]},
-    {id:'m25',text:'Apply MLH Fellowship Fall 2026 (~August deadline)',priority:'high',res:[
+    {id:'m25',text:'Apply MLH Fellowship Fall 2026 (~August deadline)',priority:'high',n:[
+      'Application: GitHub profile + one project you built + 3 short essays + a technical interview where you walk through your code line by line.',
+      'Submit your flagship project — it needs to be something you built alone and can explain every design decision completely.',
+      'The technical interview tests depth, not breadth. They will ask why you made specific implementation choices — not just what you built.',
+      'Acceptance rate is ~2.5%. Apply but treat it as a stretch goal, not a plan. Don\'t let it delay your main application effort.',
+    ],res:[
       {i:'🔗',t:'MLH Fellowship — apply',s:'~2.5% acceptance, $5K stipend, 12 weeks. They ask you to explain every line of your code',u:'https://fellowship.mlh.io/'},
       {i:'📋',t:'How to get selected for MLH Fellowship',s:'Detailed guide from a past fellow',u:'https://prathameshmutkure.hashnode.dev/mlh-fellowship-the-ultimate-guide-for-getting-selected'},
     ]},
@@ -333,7 +453,13 @@ const MS = [
     {id:'m28',text:'LinkedIn updated: Stony Brook admit, MIND 2025 pub, shipped project',res:[
       {i:'💡',t:'LinkedIn All-Star profile checklist',s:'Headline + About + Featured section — where to place your project and pub',u:'https://university.linkedin.com/linkedin-for-students'},
     ]},
-    {id:'m29',text:'Get referrals at 3+ US companies via LinkedIn alumni search',res:[
+    {id:'m29',text:'Get referrals at 3+ US companies via LinkedIn alumni search',n:[
+      'Search: go to Stony Brook University LinkedIn page → Alumni tab → filter by your target company name.',
+      'Target people who graduated 2022–2024 — they remember being new grads and are most likely to help.',
+      'Message (4 lines max): "Hi [name], I\'m joining Stony Brook MS CS this fall. I\'ve applied for the SWE intern role at [company]. I have a Springer/IEEE publication and a deployed AI project at [URL]. Would you be open to referring me?"',
+      'Personalise each message with one specific thing about their work or the company — no bulk copy-paste.',
+      'Follow up once after 7 days. If no reply, move on. Never follow up twice.',
+    ],res:[
       {i:'🔍',t:'Stony Brook Alumni on LinkedIn',s:'Alumni tab → filter by company. Message SDE-1/2 who graduated 1–3 years ago',u:'https://www.linkedin.com/school/stony-brook-university/people/'},
       {i:'📋',t:'a16z Speedrun Alpha Fellowship',s:'$20K equity-free grant for student/recent-grad founders. Apply alongside job apps',u:'https://speedrun.a16z.com/alpha'},
     ]},
@@ -342,7 +468,7 @@ const MS = [
   ]},
 ];
 
-let state={dsa:{total:'',hard:'',rating:'',mocks:''},topics:{},apps:[],oss:[],milestones:{},resOpen:{}};
+let state={dsa:{total:'',hard:'',rating:'',mocks:''},topics:{},apps:[],oss:[],milestones:{},resOpen:{},notesOpen:{}};
 function load(){try{const r=localStorage.getItem(SK);if(r)state={...state,...JSON.parse(r)}}catch(e){}}
 function save(){try{localStorage.setItem(SK,JSON.stringify(state))}catch(e){}}
 
@@ -421,6 +547,7 @@ function renderOSS(){
 
 function toggleMilestone(id){state.milestones[id]=!state.milestones[id];renderMilestones();save();}
 function toggleRes(id,e){if(e)e.stopPropagation();state.resOpen[id]=!state.resOpen[id];renderMilestones();save();}
+function toggleNotes(id,e){if(e)e.stopPropagation();state.notesOpen[id]=!state.notesOpen[id];renderMilestones();save();}
 
 function renderMilestones(){
   document.getElementById('milestonesContainer').innerHTML=MS.map(block=>{
@@ -429,15 +556,24 @@ function renderMilestones(){
       <div class="month-title">${block.month} <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono'">${done}/${block.items.length}</span></div>
       ${block.items.map(item=>{
         const hasR=item.res&&item.res.length>0;
-        const open=state.resOpen[item.id];
+        const hasN=item.n&&item.n.length>0;
+        const resOpen=state.resOpen[item.id];
+        const notesOpen=state.notesOpen[item.id];
         return `<div class="milestone-item ${state.milestones[item.id]?'done':''}">
           <div class="milestone-row" onclick="toggleMilestone('${item.id}')">
             <div class="milestone-check">${state.milestones[item.id]?'✓':''}</div>
             <div class="milestone-text">${item.text}${item.priority==='now'?'<span class="priority-tag p-now">NOW</span>':''}${item.priority==='high'?'<span class="priority-tag p-high">HIGH</span>':''}</div>
           </div>
-          ${hasR?`
-          <div class="res-toggle"><button class="res-btn" onclick="toggleRes('${item.id}',event)">${open?'▾ hide resources':'▸ resources ('+item.res.length+')'}</button></div>
-          <div class="res-panel ${open?'open':''}">
+          ${(hasN||hasR)?`<div class="panel-toggles">
+            ${hasN?`<button class="notes-btn" onclick="toggleNotes('${item.id}',event)">${notesOpen?'▾ hide notes':'▸ notes ('+item.n.length+')'}</button>`:''}
+            ${hasR?`<button class="res-btn" onclick="toggleRes('${item.id}',event)">${resOpen?'▾ hide resources':'▸ resources ('+item.res.length+')'}</button>`:''}
+          </div>`:''}
+          ${hasN?`<div class="notes-panel ${notesOpen?'open':''}">
+            <div class="notes-list">${item.n.map((note,i)=>`
+              <div class="note-item"><span class="note-num">${i+1}</span><span>${note}</span></div>`).join('')}
+            </div>
+          </div>`:''}
+          ${hasR?`<div class="res-panel ${resOpen?'open':''}">
             <div class="res-list">${item.res.map(r=>`
               <a class="res-link" href="${r.u}" target="_blank" rel="noopener">
                 <span class="res-icon">${r.i}</span>
