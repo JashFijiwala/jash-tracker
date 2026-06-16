@@ -5,99 +5,136 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>jash.tracker</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;800&display=swap');
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{
-    --bg:#0a0a0f;--surface:#111118;--surface2:#1a1a24;--border:#2a2a3a;
-    --accent:#7c6dfa;--accent2:#fa6d9a;--accent3:#6dfabd;
-    --text:#e8e6ff;--muted:#6b6880;--warn:#faa86d;
-  }
-  body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;min-height:100vh;overflow-x:hidden}
-  .noise{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");opacity:.4}
-  .app{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:24px 16px 60px}
-  .header{margin-bottom:32px}
-  .header-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
-  .logo{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.5px}
-  .logo span{color:var(--accent)}
-  .date-badge{font-size:11px;color:var(--muted);border:1px solid var(--border);padding:4px 10px;border-radius:20px}
-  .tabs{display:flex;gap:2px;margin-bottom:24px;background:var(--surface);padding:4px;border-radius:10px;border:1px solid var(--border);overflow-x:auto}
-  .tab{flex:1;min-width:80px;padding:8px 12px;border:none;background:transparent;color:var(--muted);cursor:pointer;border-radius:7px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;transition:all .15s;white-space:nowrap}
-  .tab.active{background:var(--surface2);color:var(--text);box-shadow:0 0 0 1px var(--border)}
-  .tab:hover:not(.active){color:var(--text)}
-  .dsa-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
-  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px}
-  .stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-  .stat-input{width:100%;background:transparent;border:none;font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--accent);outline:none;cursor:text}
-  .stat-input.a2{color:var(--accent2)}.stat-input.a3{color:var(--accent3)}.stat-input.aw{color:var(--warn)}
-  .progress-bar-wrap{margin-bottom:20px}
-  .progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px}
-  .progress-bar{height:6px;background:var(--surface2);border-radius:99px;overflow:hidden;border:1px solid var(--border)}
-  .progress-fill{height:100%;border-radius:99px;transition:width .4s;background:linear-gradient(90deg,var(--accent),var(--accent2))}
-  .topic-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-  .topic-item{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .15s;user-select:none}
-  .topic-item:hover{border-color:var(--accent)}
-  .topic-item.done{border-color:var(--accent3);background:rgba(109,250,189,.05)}
-  .topic-dot{width:8px;height:8px;border-radius:50%;border:2px solid var(--muted);flex-shrink:0;transition:all .15s}
-  .topic-item.done .topic-dot{background:var(--accent3);border-color:var(--accent3)}
-  .topic-name{font-size:12px;flex:1}
-  .topic-count{font-size:10px;color:var(--muted)}
-  .add-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-  .inp{flex:1;min-width:100px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;transition:border-color .15s}
-  .inp:focus{border-color:var(--accent)}
-  .sel{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;cursor:pointer}
-  .btn{padding:9px 16px;background:var(--accent);border:none;border-radius:8px;color:#fff;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .15s;white-space:nowrap}
-  .btn:hover{opacity:.85}
-  .btn-sm{padding:4px 10px;font-size:11px;border-radius:6px}
-  .btn-del{background:transparent;border:1px solid var(--border);color:var(--muted)}
-  .btn-del:hover{border-color:var(--accent2);color:var(--accent2);opacity:1}
-  .app-table{width:100%;border-collapse:collapse}
-  .app-table th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:8px 12px;border-bottom:1px solid var(--border)}
-  .app-table td{padding:10px 12px;border-bottom:1px solid rgba(42,42,58,.5);font-size:12px;vertical-align:middle}
-  .app-table tr:hover td{background:var(--surface)}
-  .app-table tr:last-child td{border-bottom:none}
-  .tier-a{color:var(--accent3)}.tier-b{color:var(--accent)}
-  .oss-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start}
-  .oss-repo{color:var(--accent);font-weight:500;font-size:13px}
-  .oss-desc{color:var(--muted);font-size:11px;margin-top:4px}
-  .oss-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
-  .month-block{margin-bottom:24px}
-  .month-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px}
-  .month-title::after{content:'';flex:1;height:1px;background:var(--border)}
-  .milestone-item{border-bottom:1px solid rgba(42,42,58,.4)}
-  .milestone-item:last-child{border-bottom:none}
-  .milestone-row{display:flex;align-items:flex-start;gap:10px;padding:9px 0 5px;cursor:pointer;user-select:none}
-  .milestone-check{width:16px;height:16px;border:2px solid var(--border);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .15s;margin-top:1px}
-  .milestone-item.done .milestone-check{background:var(--accent3);border-color:var(--accent3);color:#0a0a0f}
-  .milestone-text{font-size:12px;line-height:1.5;flex:1}
-  .milestone-item.done .milestone-text{color:var(--muted);text-decoration:line-through}
-  .priority-tag{display:inline-block;margin-left:6px;font-size:10px;padding:1px 6px;border-radius:4px}
-  .p-now{background:rgba(250,109,154,.2);color:var(--accent2)}
-  .p-high{background:rgba(124,109,250,.2);color:var(--accent)}
-  .res-toggle{padding:0 0 7px 26px}
-  .res-btn{font-size:10px;color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:2px 8px;background:transparent;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .15s}
-  .res-btn:hover{border-color:var(--accent);color:var(--accent)}
-  .milestone-item.done .res-btn{opacity:.35}
-  .res-panel{display:none;padding:0 0 10px 26px}
-  .res-panel.open{display:block}
-  .res-list{display:flex;flex-direction:column;gap:6px}
-  .res-link{display:flex;align-items:flex-start;gap:10px;text-decoration:none;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;transition:border-color .15s}
-  .res-link:hover{border-color:var(--accent)}
-  .res-icon{font-size:15px;flex-shrink:0;margin-top:1px}
-  .res-title{font-size:11px;color:var(--text);font-weight:500;margin-bottom:2px}
-  .res-sub{font-size:10px;color:var(--muted);line-height:1.4}
-  .panel-toggles{display:flex;flex-wrap:wrap;gap:6px;padding:0 0 7px 26px}
-  .notes-btn{font-size:10px;color:var(--warn);border:1px solid rgba(250,168,109,.35);border-radius:4px;padding:2px 8px;background:transparent;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .15s}
-  .notes-btn:hover{border-color:var(--warn);background:rgba(250,168,109,.08)}
-  .milestone-item.done .notes-btn{opacity:.35}
-  .notes-panel{display:none;padding:0 0 10px 26px}
-  .notes-panel.open{display:block}
-  .notes-list{display:flex;flex-direction:column;gap:5px}
-  .note-item{display:flex;gap:9px;padding:8px 11px;background:rgba(250,168,109,.05);border:1px solid rgba(250,168,109,.15);border-radius:7px;font-size:11px;line-height:1.6;color:var(--text)}
-  .note-num{color:var(--warn);font-weight:700;flex-shrink:0;min-width:14px;margin-top:1px}
-  .section-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px}
-  .empty-state{text-align:center;color:var(--muted);padding:40px;font-size:12px}
-  .scroll-x{overflow-x:auto}
-  select option{background:#1a1a24}
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;800&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;--surface:#111118;--surface2:#1a1a24;--border:#2a2a3a;
+  --accent:#7c6dfa;--accent2:#fa6d9a;--accent3:#6dfabd;
+  --text:#e8e6ff;--muted:#6b6880;--warn:#faa86d;
+}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;min-height:100vh;overflow-x:hidden}
+.noise{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");opacity:.4}
+.app{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:24px 16px 80px}
+.header{margin-bottom:28px}
+.header-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.logo{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.5px}
+.logo span{color:var(--accent)}
+.header-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.date-badge{font-size:11px;color:var(--muted);border:1px solid var(--border);padding:4px 10px;border-radius:20px}
+.overall-badge{font-size:11px;color:var(--accent3);border:1px solid rgba(109,250,189,.3);padding:4px 10px;border-radius:20px}
+.tabs{display:flex;gap:2px;margin-bottom:24px;background:var(--surface);padding:4px;border-radius:10px;border:1px solid var(--border);overflow-x:auto}
+.tab{flex:1;min-width:72px;padding:8px 10px;border:none;background:transparent;color:var(--muted);cursor:pointer;border-radius:7px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;transition:all .15s;white-space:nowrap}
+.tab.active{background:var(--surface2);color:var(--text);box-shadow:0 0 0 1px var(--border)}
+.tab:hover:not(.active){color:var(--text)}
+.dsa-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.stat-input{width:100%;background:transparent;border:none;font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--accent);outline:none;cursor:text}
+.stat-input.a2{color:var(--accent2)}.stat-input.a3{color:var(--accent3)}.stat-input.aw{color:var(--warn)}
+.stat-num{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--accent)}
+.stat-num.a2{color:var(--accent2)}.stat-num.a3{color:var(--accent3)}.stat-num.aw{color:var(--warn)}
+.progress-bar-wrap{margin-bottom:20px}
+.progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px}
+.progress-bar{height:6px;background:var(--surface2);border-radius:99px;overflow:hidden;border:1px solid var(--border)}
+.progress-fill{height:100%;border-radius:99px;transition:width .4s;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.progress-fill.green{background:linear-gradient(90deg,var(--accent3),var(--accent))}
+.topic-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.topic-item{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .15s;user-select:none}
+.topic-item:hover{border-color:var(--accent)}
+.topic-item.done{border-color:var(--accent3);background:rgba(109,250,189,.05)}
+.topic-dot{width:8px;height:8px;border-radius:50%;border:2px solid var(--muted);flex-shrink:0;transition:all .15s}
+.topic-item.done .topic-dot{background:var(--accent3);border-color:var(--accent3)}
+.topic-name{font-size:12px;flex:1}
+.topic-count{font-size:10px;color:var(--muted)}
+.add-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.inp{flex:1;min-width:90px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;transition:border-color .15s}
+.inp:focus{border-color:var(--accent)}
+.sel{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;cursor:pointer}
+.btn{padding:9px 16px;background:var(--accent);border:none;border-radius:8px;color:#fff;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .15s;white-space:nowrap}
+.btn:hover{opacity:.85}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:6px}
+.btn-del{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn-del:hover{border-color:var(--accent2);color:var(--accent2);opacity:1}
+.app-table{width:100%;border-collapse:collapse}
+.app-table th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:8px 12px;border-bottom:1px solid var(--border)}
+.app-table td{padding:10px 12px;border-bottom:1px solid rgba(42,42,58,.5);font-size:12px;vertical-align:middle}
+.app-table tr:hover td{background:var(--surface)}
+.app-table tr:last-child td{border-bottom:none}
+.tier-a{color:var(--accent3)}.tier-b{color:var(--accent)}
+.oss-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start}
+.oss-repo{color:var(--accent);font-weight:500;font-size:13px}
+.oss-desc{color:var(--muted);font-size:11px;margin-top:4px}
+.oss-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.month-block{margin-bottom:24px}
+.month-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.month-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.milestone-item{border-bottom:1px solid rgba(42,42,58,.4)}
+.milestone-item:last-child{border-bottom:none}
+.milestone-row{display:flex;align-items:flex-start;gap:10px;padding:9px 0 5px;cursor:pointer;user-select:none}
+.milestone-check{width:16px;height:16px;border:2px solid var(--border);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .15s;margin-top:1px}
+.milestone-item.done .milestone-check{background:var(--accent3);border-color:var(--accent3);color:#0a0a0f}
+.milestone-text{font-size:12px;line-height:1.5;flex:1}
+.milestone-item.done .milestone-text{color:var(--muted);text-decoration:line-through}
+.priority-tag{display:inline-block;margin-left:6px;font-size:10px;padding:1px 6px;border-radius:4px}
+.p-now{background:rgba(250,109,154,.2);color:var(--accent2)}
+.p-high{background:rgba(124,109,250,.2);color:var(--accent)}
+.p-sports{background:rgba(109,250,189,.15);color:var(--accent3)}
+.panel-toggles{display:flex;flex-wrap:wrap;gap:6px;padding:0 0 7px 26px}
+.res-btn{font-size:10px;color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:2px 8px;background:transparent;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .15s}
+.res-btn:hover{border-color:var(--accent);color:var(--accent)}
+.notes-btn{font-size:10px;color:var(--warn);border:1px solid rgba(250,168,109,.35);border-radius:4px;padding:2px 8px;background:transparent;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .15s}
+.notes-btn:hover{border-color:var(--warn);background:rgba(250,168,109,.08)}
+.milestone-item.done .res-btn,.milestone-item.done .notes-btn{opacity:.35}
+.res-panel{display:none;padding:0 0 10px 26px}
+.res-panel.open{display:block}
+.res-list{display:flex;flex-direction:column;gap:6px}
+.res-link{display:flex;align-items:flex-start;gap:10px;text-decoration:none;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;transition:border-color .15s}
+.res-link:hover{border-color:var(--accent)}
+.res-icon{font-size:15px;flex-shrink:0;margin-top:1px}
+.res-title{font-size:11px;color:var(--text);font-weight:500;margin-bottom:2px}
+.res-sub{font-size:10px;color:var(--muted);line-height:1.4}
+.notes-panel{display:none;padding:0 0 10px 26px}
+.notes-panel.open{display:block}
+.notes-list{display:flex;flex-direction:column;gap:5px}
+.note-item{display:flex;gap:9px;padding:8px 11px;background:rgba(250,168,109,.05);border:1px solid rgba(250,168,109,.15);border-radius:7px;font-size:11px;line-height:1.6;color:var(--text)}
+.note-num{color:var(--warn);font-weight:700;flex-shrink:0;min-width:14px;margin-top:1px}
+.section-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px}
+.empty-state{text-align:center;color:var(--muted);padding:40px;font-size:12px}
+.scroll-x{overflow-x:auto}
+select option{background:#1a1a24}
+
+/* Sports tab */
+.sports-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.sport-filter-row{display:flex;gap:6px;flex-wrap:wrap}
+.sf-btn{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .15s}
+.sf-btn:hover{color:var(--text);border-color:var(--accent)}
+.sf-btn.active{background:rgba(124,109,250,.15);color:var(--accent);border-color:var(--accent)}
+.sports-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.sports-prog{margin-bottom:20px}
+.scat{margin-bottom:4px}
+.scat-header{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;cursor:pointer;user-select:none;transition:border-color .15s}
+.scat-header:hover{border-color:var(--accent)}
+.scat-icon{font-size:14px;color:var(--muted)}
+.scat-name{font-size:12px;font-weight:500;color:var(--text);flex:1}
+.scat-progress{font-size:10px;color:var(--muted)}
+.scat-chev{font-size:12px;color:var(--muted);transition:transform .2s}
+.scat-chev.open{transform:rotate(180deg)}
+.stasks{display:flex;flex-direction:column;gap:4px;padding:4px 0 8px 0}
+.stask{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;cursor:pointer;transition:all .15s;user-select:none}
+.stask:hover{border-color:rgba(124,109,250,.4)}
+.stask.done{opacity:.45}
+.stask-check{width:16px;height:16px;border:2px solid var(--muted);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .15s;margin-top:1px}
+.stask.done .stask-check{background:var(--accent3);border-color:var(--accent3);color:#0a0a0f}
+.stask-body{flex:1;min-width:0}
+.stask-title{font-size:12px;color:var(--text);line-height:1.4}
+.stask.done .stask-title{text-decoration:line-through;color:var(--muted)}
+.stask-meta{display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap}
+.phase-pill{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500}
+.ph1{background:rgba(109,250,189,.15);color:var(--accent3)}
+.ph2{background:rgba(124,109,250,.15);color:var(--accent)}
+.ph3{background:rgba(250,109,154,.15);color:var(--accent2)}
+.type-pill{font-size:10px;padding:2px 7px;border-radius:10px;background:rgba(42,42,58,.8);color:var(--muted);border:1px solid var(--border)}
+.stask-res{font-size:10px;color:var(--muted);margin-top:2px}
 </style>
 </head>
 <body>
@@ -106,18 +143,45 @@
   <div class="header">
     <div class="header-top">
       <div class="logo">jash<span>.</span>tracker</div>
-      <div class="date-badge" id="dateBadge"></div>
+      <div class="header-meta">
+        <div class="overall-badge" id="overallBadge">— / — tasks</div>
+        <div class="date-badge" id="dateBadge"></div>
+      </div>
     </div>
   </div>
+
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('dsa')">DSA</button>
+    <button class="tab active" onclick="switchTab('sports')">Sports Analytics</button>
+    <button class="tab" onclick="switchTab('dsa')">DSA</button>
     <button class="tab" onclick="switchTab('apps')">Applications</button>
     <button class="tab" onclick="switchTab('oss')">Open Source</button>
     <button class="tab" onclick="switchTab('milestones')">Milestones</button>
   </div>
 
-  <!-- DSA -->
-  <div id="tab-dsa">
+  <!-- SPORTS TAB -->
+  <div id="tab-sports">
+    <div class="sports-stats">
+      <div class="stat-card"><div class="stat-label">Total tasks</div><div class="stat-num" id="sp-total">0</div></div>
+      <div class="stat-card"><div class="stat-label">Completed</div><div class="stat-num a3" id="sp-done">0</div></div>
+      <div class="stat-card"><div class="stat-label">Year 1 left</div><div class="stat-num" id="sp-y1">0</div></div>
+      <div class="stat-card"><div class="stat-label">Year 3 left</div><div class="stat-num a2" id="sp-y3">0</div></div>
+    </div>
+    <div class="sports-prog">
+      <div class="progress-label"><span>Overall progress</span><span id="sp-pct">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill green" id="sp-bar" style="width:0%"></div></div>
+    </div>
+    <div class="sport-filter-row" style="margin-bottom:16px">
+      <button class="sf-btn active" onclick="setSF('all',this)">All phases</button>
+      <button class="sf-btn" onclick="setSF('1',this)">Year 1</button>
+      <button class="sf-btn" onclick="setSF('2',this)">Year 2</button>
+      <button class="sf-btn" onclick="setSF('3',this)">Year 3</button>
+      <button class="sf-btn" onclick="setSF('done',this)">Done</button>
+    </div>
+    <div id="sportsCategories"></div>
+  </div>
+
+  <!-- DSA TAB -->
+  <div id="tab-dsa" style="display:none">
     <div class="dsa-grid">
       <div class="stat-card"><div class="stat-label">Problems Solved</div><input class="stat-input" id="dsa-total" type="number" min="0" placeholder="0" oninput="saveStats()"></div>
       <div class="stat-card"><div class="stat-label">Hard Problems</div><input class="stat-input a2" id="dsa-hard" type="number" min="0" placeholder="0" oninput="saveStats()"></div>
@@ -132,16 +196,16 @@
     <div class="topic-grid" id="topicGrid"></div>
   </div>
 
-  <!-- APPS -->
+  <!-- APPS TAB -->
   <div id="tab-apps" style="display:none">
     <div class="add-row">
-      <input class="inp" id="app-company" placeholder="Company" style="max-width:160px">
-      <input class="inp" id="app-role" placeholder="Role" style="max-width:160px">
+      <input class="inp" id="app-company" placeholder="Company" style="max-width:150px">
+      <input class="inp" id="app-role" placeholder="Role" style="max-width:150px">
       <select class="sel" id="app-tier">
-        <option value="A">Tier A (Indian)</option>
-        <option value="B">Tier B (AI startup)</option>
-        <option value="C">US 2027</option>
-        <option value="INT">Internship</option>
+        <option value="US">US Intern 2027</option>
+        <option value="AI">AI Startup</option>
+        <option value="FT">Full-time</option>
+        <option value="SP">Sports/Analytics</option>
       </select>
       <select class="sel" id="app-status">
         <option value="pending">Pending</option>
@@ -154,10 +218,10 @@
       <button class="btn btn-sm" onclick="addApp()">+ Add</button>
     </div>
     <div class="dsa-grid" style="margin-bottom:20px">
-      <div class="stat-card"><div class="stat-label">Total Applied</div><div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--accent)" id="count-total">0</div></div>
-      <div class="stat-card"><div class="stat-label">Active / OA</div><div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--warn)" id="count-active">0</div></div>
-      <div class="stat-card"><div class="stat-label">Interviews</div><div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--accent2)" id="count-int">0</div></div>
-      <div class="stat-card"><div class="stat-label">Offers</div><div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--accent3)" id="count-offer">0</div></div>
+      <div class="stat-card"><div class="stat-label">Total Applied</div><div class="stat-num" id="count-total">0</div></div>
+      <div class="stat-card"><div class="stat-label">Active / OA</div><div class="stat-num aw" id="count-active">0</div></div>
+      <div class="stat-card"><div class="stat-label">Interviews</div><div class="stat-num a2" id="count-int">0</div></div>
+      <div class="stat-card"><div class="stat-label">Offers</div><div class="stat-num a3" id="count-offer">0</div></div>
     </div>
     <div class="scroll-x">
       <table class="app-table">
@@ -168,7 +232,7 @@
     </div>
   </div>
 
-  <!-- OSS -->
+  <!-- OSS TAB -->
   <div id="tab-oss" style="display:none">
     <div class="add-row">
       <input class="inp" id="oss-repo" placeholder="Repo (e.g. supabase/supabase)">
@@ -182,22 +246,23 @@
       <button class="btn btn-sm" onclick="addOSS()">+ Add</button>
     </div>
     <div class="dsa-grid" style="margin-bottom:20px">
-      <div class="stat-card"><div class="stat-label">PRs Merged</div><div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--accent3)" id="oss-merged">0</div></div>
-      <div class="stat-card"><div class="stat-label">In Progress</div><div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--accent)" id="oss-wip">0</div></div>
-      <div class="stat-card"><div class="stat-label">Total Contributions</div><div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--warn)" id="oss-total">0</div></div>
+      <div class="stat-card"><div class="stat-label">PRs Merged</div><div class="stat-num a3" id="oss-merged">0</div></div>
+      <div class="stat-card"><div class="stat-label">In Progress</div><div class="stat-num" id="oss-wip">0</div></div>
+      <div class="stat-card"><div class="stat-label">Total</div><div class="stat-num aw" id="oss-total">0</div></div>
     </div>
     <div id="ossCards"></div>
     <div id="oss-empty" class="empty-state" style="display:none">No OSS contributions yet.</div>
   </div>
 
-  <!-- MILESTONES -->
+  <!-- MILESTONES TAB -->
   <div id="tab-milestones" style="display:none">
     <div id="milestonesContainer"></div>
   </div>
 </div>
 
 <script>
-const SK = 'jash_tracker_v3';
+const SK = 'jash_tracker_v4';
+
 const TOPICS = [
   {id:'arrays',name:'Arrays & Hashing',target:60},
   {id:'twoptr',name:'Two Pointers / Sliding Window',target:40},
@@ -217,263 +282,175 @@ const TOPICS = [
   {id:'sysdesign',name:'System Design Basics',target:10},
 ];
 
-const MS = [
-  {month:'April 27 — RIGHT NOW',items:[
-    {id:'m1',text:'Apply Amazon 6-month SDE Intern (July–Dec) at amazon.jobs',priority:'now',n:[
-      'Apply today — amazon.jobs → search "SDE Intern" + India. Rolling basis, closes fast, no fixed deadline.',
-      'OA format: 2 DSA problems (1 easy + 1 medium) + work-style simulation MCQ. 90 minutes total. Most candidates fail here, not at the resume screen.',
-      'Before the OA: write out 16 STAR stories mapped to Amazon\'s 16 Leadership Principles. Behavioural rounds test these explicitly and you need them prepared in advance.',
-      'Timeline: apply March–May → OA invite within 1–2 weeks → interviews April–June → start date July.',
-      'If you get the OA, treat DSA prep as the priority for that week. The problems are medium-difficulty but timed strictly.',
-    ],res:[
-      {i:'🔗',t:'Amazon Jobs — SDE Intern India',s:'Search "SDE Intern" with India filter',u:'https://www.amazon.jobs/en/search?base_query=software+development+engineer+intern&loc_query=India'},
-      {i:'📋',t:'Amazon Leadership Principles',s:'Prep 16 STAR stories around these — mandatory for behavioural rounds',u:'https://www.amazon.jobs/content/en/our-workplace/leadership-principles'},
-      {i:'💬',t:'LeetCode Discuss — Amazon OA patterns',s:'Recent OA questions shared by candidates',u:'https://leetcode.com/discuss/interview-question?currentPage=1&orderBy=hot&query=amazon+OA+intern'},
-    ]},
-    {id:'m2',text:'Set up Claude Cowork folder (ABOUT ME / OUTPUTS / TEMPLATES)',priority:'now',n:[
-      'Download Claude desktop app at claude.ai/download. Requires Claude Pro (~$20/mo) — free tier won\'t work.',
-      'Create a folder on your Desktop: "Claude Cowork" with 3 subfolders: ABOUT ME, OUTPUTS, TEMPLATES.',
-      'Open Cowork, click the folder icon at the top, and select your Claude Cowork folder.',
-      'Also drop your resume.pdf and a file called target-companies.txt into ABOUT ME — Cowork reads everything in that folder.',
-      'Don\'t skip the about-me setup step. Without it every session starts blank and Cowork is just a file browser.',
-    ],res:[
-      {i:'📖',t:'Ruben Hassid — Set up Claude Cowork (April 2026)',s:'The definitive setup guide, step by step',u:'https://ruben.substack.com/p/claude-cowork-20'},
-      {i:'📖',t:'Ruben Hassid — Cowork + Projects',s:'Memory that persists between sessions',u:'https://ruben.substack.com/p/claude-cowork-project'},
-      {i:'🌐',t:'claude-co.work — starter prompts',s:'Free resource with copy-paste prompts for Cowork',u:'https://claude-co.work'},
-    ]},
-    {id:'m3',text:'Create about-me.md using Cowork interview prompt',priority:'high',n:[
-      'Paste this prompt into Cowork: "Interview me with 20 questions to build a complete about-me.md. Ask one at a time. Cover: background, goals, current situation, writing style, what I\'m building, what I want you to always remember. Keep under 2,000 tokens."',
-      'Answer every question fully and honestly — the quality of every future Cowork output depends directly on this file.',
-      'After finishing, run a second interview: "Now interview me to build an anti-AI-style.md file. Ask about phrases I hate, my natural tone, ideal sentence length, words I never use." Save it separately.',
-      'Update about-me.md every 2–3 weeks as your situation changes — new projects shipped, applications submitted, anything significant.',
-    ],res:[
-      {i:'📖',t:'Ruben Hassid — Claude to sound like you',s:'How to build the voice file that makes Claude write like you',u:'https://ruben.substack.com/p/i-am-just-a-text-file'},
-      {i:'🛠',t:'how-to-ai.guide',s:'Free download of Ruben\'s template folder + anti-AI writing file',u:'https://how-to-ai.guide'},
-    ]},
+const SPORTS_DATA = [
+  {id:'sql',icon:'⬡',name:'SQL & data modeling',tasks:[
+    {id:'sq1',title:'Complete dbt fundamentals course (official dbt Learn, free)',phase:'1',type:'course',res:'courses.getdbt.com'},
+    {id:'sq2',title:'Build a dbt project on top of your Cricsheet Supabase data — models, tests, docs',phase:'1',type:'project',res:'your Cricket Oracle DB'},
+    {id:'sq3',title:'Learn window functions deeply: RANK, LAG, LEAD, NTILE on cricket data',phase:'1',type:'practice',res:'Mode SQL tutorial'},
+    {id:'sq4',title:'Set up Snowflake free trial, load Cricsheet data, run dbt against it',phase:'1',type:'project',res:'snowflake.com/try'},
+    {id:'sq5',title:'Study star schema vs OBT patterns — when to use each',phase:'2',type:'concept',res:'dbt docs: best practices'},
+    {id:'sq6',title:'Add data quality tests (dbt test + Great Expectations) to a pipeline',phase:'2',type:'project',res:'greatexpectations.io'},
   ]},
-  {month:'May 2026',items:[
-    {id:'m4',text:'Hit 100 LeetCode — Arrays → Hashing → Two Pointers → Sliding Window → Binary Search',priority:'high',n:[
-      'Do Striver A2Z in strict order. Don\'t skip ahead to graphs or DP because they look interesting — foundation topics have patterns that every hard problem builds on.',
-      'Per topic: solve 3 easy problems to build pattern recognition, then go straight to mediums. Don\'t camp on easy problems.',
-      'Watch NeetCode only if stuck for more than 25 minutes — not before attempting. Watching first turns it into passive learning.',
-      'The next morning, re-solve every problem you got wrong the day before from scratch. No peeking. This is the most important daily habit.',
-      'In month 1, time loosely. From month 3, enforce a strict 35-minute limit per problem — that\'s roughly what you get in real OAs.',
-    ],res:[
-      {i:'📋',t:'Striver A2Z Sheet — start here',s:'Most structured sheet for Indian hiring, covers every topic in order',u:'https://takeuforward.org/strivers-a2z-dsa-course/strivers-a2z-dsa-course-sheet-2/'},
-      {i:'▶️',t:'Aditya Verma — Sliding Window playlist',s:'Best YouTube resource for sliding window patterns',u:'https://www.youtube.com/playlist?list=PL_z_8CaSLPWeM8BDJmIYDaoQ5zuwyxnfj'},
-    ]},
-    {id:'m5',text:'[OR] Pick flagship project idea (RAG app / MCP agent / browser extension)',priority:'high',n:[
-      'Rule 1: pick something you\'d actually use yourself. Motivation collapses on projects you don\'t care about.',
-      'Rule 2: AI must be the core, not a feature. A CRUD app with an AI button bolted on is not an AI project to a recruiter.',
-      'Rule 3: must be deployable as an MVP in one week. If scaffolding takes longer, the idea is too complex.',
-      'Validation test: can you explain what it does and who it\'s for in one sentence? If not, keep narrowing the scope.',
-      'Good litmus: would you pay ₹100/month for it? Would 10 of your friends?',
-      'Avoid saturated ideas in 2025–26: ChatGPT wrapper, "chat with your PDF", food delivery clone, generic todo app. Recruiters see hundreds of these.',
-    ],res:[
-      {i:'📖',t:'Top 10 LLM & RAG projects for AI portfolio (2025–26)',s:'Concrete ideas that actually get recruiter attention',u:'https://growtechie.substack.com/p/top-10-llm-and-rag-projects-for-your'},
-      {i:'🎓',t:'HuggingFace Learn — RAG & Agents course',s:'Free, hands-on, covers transformers / RAG / tool-use',u:'https://huggingface.co/learn'},
-      {i:'🎓',t:'DeepLearning.AI — Building RAG Agents with LLMs',s:'Free 1-hour course, gives you the mental model before building',u:'https://www.deeplearning.ai/short-courses/building-agentic-rag-with-llamaindex/'},
-      {i:'🛠',t:'LangChain JS — RAG quickstart',s:'Next.js + LangChain + Supabase pgvector — your exact stack',u:'https://js.langchain.com/docs/tutorials/rag/'},
-      {i:'🛠',t:'Vercel AI SDK',s:'Cleanest way to add streaming AI to a Next.js app',u:'https://sdk.vercel.ai/docs/introduction'},
-    ]},
-    {id:'m5b',text:'[OR] Learn RLHF — foundations → implementation → fine-tune a small model',priority:'high',n:[
-      'Week 1: Watch Karpathy "Let\'s build GPT from scratch" (2h video). Then implement it yourself. Non-negotiable prerequisite — you must understand the transformer before fine-tuning it.',
-      'Week 2: Read Chip Huyen\'s RLHF post (30 min). Watch Yannic Kilcher\'s InstructGPT walkthrough (45 min). Then read the actual InstructGPT paper — it\'s 15 pages and your publication background means it won\'t be alien.',
-      'Week 3: Take the DeepLearning.AI RLHF course (free, ~3h). Read HuggingFace TRL docs in order: SFTTrainer → RewardTrainer → PPOTrainer. Also read Anthropic\'s Constitutional AI paper — directly relevant to AI lab roles.',
-      'Week 4: Implement the full SFT → reward model → PPO pipeline on GPT-2 using the TRL notebook on free Colab T4 GPU. Get it running end to end — this is what goes on your resume, not the reading.',
-      'Write a clear GitHub README: what model you trained, what the reward signal was, what changed after RLHF vs the base model, with a before/after sample.',
-      'RLHF knowledge opens Research Engineer doors at AI labs that a RAG app alone doesn\'t — it\'s the thing that makes your Springer pub and this project form a coherent narrative.',
-    ],res:[
-      {i:'📖',t:'Chip Huyen — RLHF overview (read this first)',s:'Best conceptual intro: reward models, PPO, KL divergence — written for engineers not researchers',u:'https://huyenchip.com/2023/05/02/rlhf.html'},
-      {i:'🎓',t:'DeepLearning.AI — Reinforcement Learning from Human Feedback',s:'Free course by the team that coined the term. Covers SFT → RM → PPO end-to-end with code',u:'https://www.deeplearning.ai/short-courses/reinforcement-learning-from-human-feedback/'},
-      {i:'🎓',t:'HuggingFace TRL library — official docs',s:'TRL is the standard library for RLHF. Read SFTTrainer → RewardTrainer → PPOTrainer in order',u:'https://huggingface.co/docs/trl/index'},
-      {i:'▶️',t:'Andrej Karpathy — "Let\'s build GPT from scratch" (prerequisite)',s:'If you haven\'t watched this, do it before touching RLHF. 2h video, builds the transformer you\'ll be fine-tuning',u:'https://www.youtube.com/watch?v=kCc8FmEb1nY'},
-      {i:'▶️',t:'Yannic Kilcher — InstructGPT paper walkthrough',s:'The original RLHF paper that powers ChatGPT explained line by line — 45 min, essential',u:'https://www.youtube.com/watch?v=VPRSBzXzavo'},
-      {i:'📄',t:'InstructGPT paper (Ouyang et al. 2022)',s:'Read the actual paper after watching Yannic\'s walkthrough. Your MIND pub background means you can handle it',u:'https://arxiv.org/abs/2203.02155'},
-      {i:'📄',t:'Constitutional AI — Anthropic (2022)',s:'The next evolution of RLHF. Read after InstructGPT — directly relevant to AI lab work',u:'https://arxiv.org/abs/2212.08073'},
-      {i:'🛠',t:'TRL — SFT + RLHF on a small model (hands-on notebook)',s:'Fine-tune GPT-2 or Llama-3.2-1B with RLHF in one Colab notebook. The right first implementation',u:'https://github.com/huggingface/trl/blob/main/examples/notebooks/gpt2-sentiment.ipynb'},
-      {i:'🛠',t:'Colab — free GPU for RLHF experiments',s:'Use T4 GPU (free tier). Llama-3.2-1B or GPT-2 fits comfortably. Don\'t attempt anything larger',u:'https://colab.research.google.com/'},
-      {i:'💡',t:'The 4-week RLHF learning path (how to sequence this)',s:'Week 1: transformers + Karpathy. Week 2: InstructGPT paper + Chip Huyen post. Week 3: TRL docs + DeepLearning.AI course. Week 4: implement SFT→RM→PPO on GPT-2',u:'https://www.reddit.com/r/MachineLearning/comments/13xt0xv/d_how_to_learn_rlhf/'},
-    ]},
-    {id:'m6',text:'LinkedIn outreach: 3–5 SDE-1/2 at Razorpay, Zepto, PhonePe',n:[
-      'Target SDE-1/SDE-2 who graduated 1–3 years ago, not seniors or managers. They remember being in your position and are most likely to help.',
-      'Message template (3 lines max): "Hi [name], I\'m a recent CS grad with a Springer/IEEE publication in [area]. I\'ve applied for [role] at [company]. Would you be open to giving me a referral? Happy to share my resume."',
-      'Do NOT ask to "pick their brain" or "grab a quick call" — ask directly for the referral. It\'s faster for them and gets a cleaner yes/no.',
-      'Send 10 DMs per target company. Expect 2–3 replies, 1 referral. That\'s the normal conversion rate — don\'t take silence personally.',
-      'Follow up once after 7 days if no reply. Then move on. Never follow up twice.',
-    ],res:[
-      {i:'🔍',t:'LinkedIn Alumni Search',s:'Search company name + SDE + India — filter by 2nd connections',u:'https://www.linkedin.com/search/results/people/'},
-      {i:'💡',t:'How to cold DM for referrals (what actually works)',s:'Lead with your Springer pub + project, ask for referral not "advice"',u:'https://www.linkedin.com/pulse/how-get-employee-referral-tech-company-youre-not-connected-/'},
-    ]},
-    {id:'m7',text:'Apply 2–3 Tier-B AI startups (Composio, Sarvam AI, Portkey) via Wellfound',n:[
-      'Research each company for 10 minutes before applying — know what they build, who uses it, and what the team size is.',
-      'In your cover message, lead with the Springer publication. Most applicants to early-stage startups have nothing comparable — it gets you read when others don\'t.',
-      'Apply to 8–10, not just 2–3. Conversion rate at early-stage startups is low even for strong candidates.',
-      'On Wellfound, check if the founder is listed as active on the platform. If so, message them directly — founders read their own messages.',
-    ],res:[
-      {i:'🔗',t:'Wellfound — India AI startups',s:'Filter: India + AI/ML + seed/Series A',u:'https://wellfound.com/jobs?role=engineer&country=IN&industry=Artificial+Intelligence'},
-      {i:'🔗',t:'YC Work at a Startup — India filter',s:'YC-backed companies hiring in India, updated weekly',u:'https://www.workatastartup.com/companies?country=IN'},
-      {i:'🔗',t:'Composio — open roles',s:'AI tool-use infra startup, perfect stack match for your profile',u:'https://composio.dev/careers'},
-      {i:'🔗',t:'Sarvam AI — careers',s:'India\'s leading LLM lab',u:'https://www.sarvam.ai/careers'},
-    ]},
-    {id:'m8',text:'Set up Simplify.jobs for tracking US Summer 2027 apps',res:[
-      {i:'🛠',t:'Simplify.jobs',s:'Autofills US job applications, free. Use for all US 2027 apps',u:'https://simplify.jobs'},
-      {i:'📋',t:'Pitt CSC — Summer 2027 Internships list',s:'Community-maintained GitHub list, updated daily when apps open',u:'https://github.com/SimplifyJobs/Summer2025-Internships'},
-    ]},
+  {id:'cloud',icon:'☁',name:'Cloud infra (AWS)',tasks:[
+    {id:'cl1',title:'Complete AWS Cloud Practitioner — S3, IAM, EC2, Lambda basics',phase:'1',type:'course',res:'AWS Skill Builder (free)'},
+    {id:'cl2',title:'Build a mini pipeline: Cricsheet CSV → S3 → AWS Glue → Athena query',phase:'1',type:'project',res:'AWS free tier'},
+    {id:'cl3',title:'Deploy Cricket Oracle scraper as AWS Lambda + EventBridge cron',phase:'2',type:'project',res:'AWS Lambda docs'},
+    {id:'cl4',title:'Get AWS Solutions Architect Associate or Data Engineer Associate cert',phase:'2',type:'cert',res:'Stephane Maarek on Udemy'},
+    {id:'cl5',title:'Set up CloudWatch monitoring + alerting on a data pipeline',phase:'2',type:'project',res:'AWS CloudWatch docs'},
+    {id:'cl6',title:'Learn Databricks basics — appears in cricket analytics JDs',phase:'3',type:'course',res:'Databricks free training'},
   ]},
-  {month:'June 2026',items:[
-    {id:'m9',text:'Hit 240 LeetCode — start LC Weekly Contest',priority:'high',res:[
-      {i:'🏆',t:'LeetCode Weekly Contest',s:'Every Saturday 8:00 AM IST. Aim to solve 2 problems in first 4 contests',u:'https://leetcode.com/contest/'},
-      {i:'▶️',t:'Aditya Verma — DP playlist (start now)',s:'40+ videos, the single best DP resource in the Indian ecosystem',u:'https://www.youtube.com/playlist?list=PL_z_8CaSLPWekqhdCPmFohncHwz8TY2Go'},
-    ]},
-    {id:'m10',text:'Ship flagship project live with real URL and 50–100 real users',priority:'high',n:[
-      'Week 1: scaffold + auth + exactly one core feature working end to end. Nothing else.',
-      'Week 2: polish that one feature, add error handling, write README, deploy to Vercel.',
-      'Do NOT wait for it to be "ready." Ship at 70% polish. Real users will tell you what actually matters — you can\'t know in advance.',
-      'Where to share on launch day: r/webdev ("Show HN"-style post), IndieHackers "share what you\'ve built", 2–3 relevant Discord servers (e.g. Supabase Discord, LangChain Discord), and your LinkedIn.',
-      'README must have: one-sentence description, a live URL, a screenshot or GIF, tech stack, and a "How it works" section with a simple architecture diagram. That\'s it.',
-    ],res:[
-      {i:'🛠',t:'Vercel — deploy Next.js in 2 minutes',s:'Free tier, instant deploys, perfect for your stack',u:'https://vercel.com/new'},
-      {i:'🛠',t:'Railway.app — backend / DB hosting',s:'Easiest way to host anything that isn\'t purely frontend',u:'https://railway.app'},
-      {i:'📣',t:'IndieHackers — share what you\'ve built',s:'Post here first — active community, real feedback, early users',u:'https://www.indiehackers.com/post/share-what-youve-built'},
-      {i:'📣',t:'ProductHunt — Coming Soon page',s:'Submit a Coming Soon page to collect early signups before launch',u:'https://www.producthunt.com/posts/new'},
-    ]},
-    {id:'m11',text:'Get first OSS PR merged (supabase/supabase or langchain-ai/langchain)',priority:'high',n:[
-      'Week 1: set up local dev environment, read CONTRIBUTING.md fully, join the project\'s Discord and lurk for a few days to understand what maintainers care about.',
-      'Week 2: find a good-first-issue that matches your stack (TypeScript/Python). Before starting, comment on the issue: "I\'d like to work on this" — avoids duplicate work.',
-      'Week 3: submit the PR. Keep it strictly focused on one thing. Don\'t fix unrelated issues in the same PR even if you notice them.',
-      'Do NOT make typo fixes or docs-only PRs as your first contribution. Maintainers notice and it signals low effort.',
-      'Write a clear PR description: what the problem was, what your solution does, how you tested it. Link to the issue it closes.',
-      'If a maintainer asks for changes, respond within 24 hours. Slow responses are the most common reason PRs go stale.',
-    ],res:[
-      {i:'🔍',t:'goodfirstissue.dev — TypeScript filter',s:'Best discovery tool for beginner-friendly issues in your stack',u:'https://goodfirstissue.dev/language/typescript'},
-      {i:'🔗',t:'supabase/supabase — CONTRIBUTING.md',s:'Start with JS client or Studio dashboard issues. Welcoming maintainers',u:'https://github.com/supabase/supabase/blob/master/CONTRIBUTING.md'},
-      {i:'🔗',t:'langchain-ai/langchain — good first issues',s:'New vectorstore or chat-model integrations are the cleanest PRs',u:'https://github.com/langchain-ai/langchain/contribute'},
-      {i:'🔗',t:'shadcn-ui/ui — contributing',s:'High-visibility component library, great for your Next.js background',u:'https://github.com/shadcn-ui/ui/blob/main/CONTRIBUTING.md'},
-      {i:'💡',t:'How to make OSS contributions sound impressive',s:'What counts as "substantive" vs what gets ignored by reviewers',u:'https://www.gankinterview.com/en/blog/how-to-make-open-source-contributions-sound-impressive-dont-just-say-you-fixed-t'},
-    ]},
-    {id:'m12',text:'Apply Flipkart GRiD + Juspay Hiring Challenge',res:[
-      {i:'🔗',t:'Unstop — Flipkart GRiD',s:'Annual challenge → internship pipeline. Check here for 2026 dates',u:'https://unstop.com/hackathons/flipkart-grid'},
-      {i:'🔗',t:'Unstop — Juspay Hiring Challenge',s:'MCQ + coding + 2-day hackathon → ₹21–27 LPA SDE FT',u:'https://unstop.com/o/juspay'},
-    ]},
-    {id:'m13',text:'10–15 off-campus apps via Instahyre / Cutshort / Wellfound',res:[
-      {i:'🔗',t:'Instahyre',s:'Used by Razorpay, PhonePe, Swiggy for off-campus hiring',u:'https://www.instahyre.com/jobs/'},
-      {i:'🔗',t:'Cutshort',s:'Strong for Indian product companies, fills gaps Wellfound misses',u:'https://cutshort.io/jobs'},
-      {i:'💬',t:'r/developersIndia — Who is Hiring thread',s:'Most honest source for off-campus leads and interview experiences',u:'https://www.reddit.com/r/developersIndia/search/?q=hiring&sort=new'},
-      {i:'💬',t:'AlgoZenith Discord',s:'Documented placements at Google, Amazon, Nutanix — active placement channel',u:'https://discord.gg/algozenith'},
-    ]},
-    {id:'m14',text:'Contest rating target: 1,400–1,500'},
+  {id:'pipe',icon:'⟳',name:'Pipeline orchestration',tasks:[
+    {id:'pi1',title:'Convert match_day.py into an Airflow DAG (local Docker setup)',phase:'1',type:'project',res:'Apache Airflow docs'},
+    {id:'pi2',title:'Learn Airflow core: DAGs, operators, XComs, sensors',phase:'1',type:'course',res:'Astronomer Academy (free)'},
+    {id:'pi3',title:'Build full Airflow pipeline: scrape → transform → load → alert',phase:'2',type:'project',res:'your Cricket Oracle project'},
+    {id:'pi4',title:'Explore Prefect or Dagster as lightweight alternatives',phase:'2',type:'concept',res:'prefect.io docs'},
+    {id:'pi5',title:'Set up pipeline failure alerting via Slack/email — operational practice',phase:'3',type:'project',res:'Airflow callbacks'},
   ]},
-  {month:'July 2026',items:[
-    {id:'m15',text:'Hit 400 LeetCode — 2 mocks/week, heavy hards',priority:'high',n:[
-      'Do at least 1 mock interview before any real OA. Don\'t walk into Amazon\'s test cold.',
-      'On Pramp: record your session. Watch it back — painful but you\'ll pinpoint exactly where you lose time.',
-      'Enforce the 35-minute hard limit per problem during mocks. No exceptions. This is real OA pacing.',
-      'Practice talking out loud the entire time. Silence hurts you in interviews — the interviewer needs to follow your thinking even when you\'re stuck.',
-      'After every mock: write down the one pattern you struggled with most, then solve 5 more problems of that exact type the next day.',
-    ],res:[
-      {i:'🎤',t:'interviewing.io — free mock interviews',s:'Practice with real engineers, recordings for self-review',u:'https://interviewing.io'},
-      {i:'🎤',t:'Pramp — peer mock interviews',s:'Free, peer-to-peer, good for explaining solutions out loud',u:'https://www.pramp.com'},
-      {i:'📖',t:'Hello Interview — system design prep',s:'Start SD basics now. Free tier is sufficient for your timeline',u:'https://www.hellointerview.com'},
-    ]},
-    {id:'m16',text:'Apply Amazon ML Summer School (closes ~July 31)',priority:'high',n:[
-      'Application is a short form + an online test: ML theory MCQ + 2 DSA medium problems. Not a heavy commitment to apply.',
-      'Mention your Springer publication prominently in the application form — very few applicants have a peer-reviewed pub.',
-      'The school itself (5 weekends in August, remote, free) is training run by Amazon Scientists — not a direct internship pipeline.',
-      'Treat it as a long-game networking event. Connections made during the school occasionally convert to intern referrals at Amazon and partner companies.',
-    ],res:[
-      {i:'🔗',t:'Amazon ML Summer School — official page',s:'Free 5-weekend training. Springer pub strengthens your application',u:'https://www.amazon.science/academic-engagements/amazon-launches-annual-ml-summer-school-in-india'},
-      {i:'📋',t:'How to prepare for AMLS selection test',s:'MCQ ML theory + 2 DSA mediums. Apply as soon as it opens',u:'https://www.lets-code.co.in/blogs/amazon-ml-summer-school-2025-how-to-apply-prepare-and-get-selected/'},
-    ]},
-    {id:'m17',text:'Apply LFX Mentorship Term 2 (window: July 30 – Aug 12)',priority:'high',n:[
-      'Set a phone reminder for July 30 right now. The 2-week window is strict — there is no late application.',
-      'Application requires: 2–3 PR links to the target project, a motivation statement, and your background. You need existing contributions to apply credibly — this is why OSS work starts in June.',
-      'Stipend is $3,000 for 12 weeks, fully remote. The term runs Sept–Nov, which overlaps slightly with Stony Brook start — confirm with your advisor that CPT isn\'t needed for a remote international stipend.',
-      'If you don\'t get in this cycle, the Term 3 cycle runs in early 2027 — your Stony Brook enrollment makes you eligible and your contribution record will be stronger by then.',
-    ],res:[
-      {i:'🔗',t:'LFX Mentorship — apply here',s:'$3,000 stipend, remote, 12 weeks. Applications open July 30 — apply immediately',u:'https://mentorship.lfx.linuxfoundation.org/'},
-      {i:'📋',t:'LFX application guide',s:'Reference your OSS PRs + Springer pub — they weigh both',u:'https://github.com/cncf/mentoring/blob/main/programs/lfx-mentorship/README.md'},
-    ]},
-    {id:'m18',text:'Submit Amazon SWE Intern 2027 application from India',priority:'high',n:[
-      'Apply the day the listing appears — Amazon fills on rolling basis and closes when headcount is full, often before October.',
-      'OA format is identical to the India SDE Intern OA: 2 DSA problems + work simulation. Same prep applies.',
-      'You can apply from India before you fly. You don\'t need a US address or US phone number for the initial application.',
-      'Use Simplify.jobs to autofill the Workday application form — saves 20 minutes of copy-pasting.',
-    ],res:[
-      {i:'🔗',t:'Amazon Jobs — SWE Intern 2027 (US)',s:'Opens July–August. Apply day it opens — Amazon reviews rolling',u:'https://www.amazon.jobs/en/search?base_query=software+development+engineer+intern&loc_query=United+States'},
-      {i:'📋',t:'Pitt CSC Summer 2027 tracker',s:'Watch this daily in July — lists Amazon the day apps open',u:'https://github.com/SimplifyJobs/Summer2025-Internships'},
-    ]},
-    {id:'m19',text:'Submit Databricks Summer 2027 intern application',res:[
-      {i:'🔗',t:'Databricks University Recruiting',s:'Opens ~July–Aug. Sponsors CPT/OPT explicitly. HackerRank OA + phone screens',u:'https://www.databricks.com/company/careers/open-positions?department=University+Recruiting'},
-    ]},
-    {id:'m20',text:'Get 2nd substantive OSS PR merged',res:[
-      {i:'🔍',t:'up-for-grabs.net — TypeScript',s:'Broader OSS discovery, filter by language and label',u:'https://up-for-grabs.net/#/tags/typescript'},
-      {i:'🔗',t:'PostHog/posthog — contributing',s:'Python + TS, hires from contributor pool, broad surface area',u:'https://github.com/PostHog/posthog/blob/master/CONTRIBUTING.md'},
-    ]},
-    {id:'m21',text:'Polish US-format resume (1 page, quantified bullets)',n:[
-      'Header: name + Google Voice number + GitHub URL + LinkedIn URL. Nothing else. No photo, no DOB, no address beyond "Stony Brook, NY".',
-      'Each bullet follows the same formula: [Strong action verb] + [what you built/did] + [quantified metric]. Example: "Built RAG pipeline reducing eval hallucination rate by 40% on internal benchmark."',
-      'Publications get their own section below Education. Format: Author, Author. "Title." Conference Name, Year. Publisher.',
-      'Skills section: list tech stack only — no "proficient in" or "familiar with" qualifiers. Recruiters ignore those.',
-      'Run through Resume Worded before submitting anywhere — it catches formatting issues that ATS systems reject.',
-      'One page strictly. If it spills onto page 2, cut from the bottom up — your oldest or least relevant items.',
-    ],res:[
-      {i:'🛠',t:'Resume Worded',s:'Free AI feedback on your resume against FAANG standards',u:'https://resumeworded.com/resume-scanner'},
-      {i:'📋',t:'r/cscareerquestions — resume wiki',s:'Canonical guide for US tech resume format',u:'https://www.reddit.com/r/cscareerquestions/wiki/faq_resumes/'},
-      {i:'💡',t:'How to list publications on a resume',s:'Exact format for your MIND 2025 Springer paper listing',u:'https://zety.com/blog/publications-on-resume'},
-    ]},
-    {id:'m22',text:'Contest rating target: 1,600–1,650'},
+  {id:'stream',icon:'⚡',name:'Real-time & streaming',tasks:[
+    {id:'st1',title:'Understand Kafka architecture: topics, partitions, consumers, producers',phase:'2',type:'concept',res:'Kafka: The Definitive Guide (free PDF)'},
+    {id:'st2',title:'Set up local Kafka cluster (Docker) and stream ball-by-ball match events',phase:'2',type:'project',res:'Confluent Kafka tutorials'},
+    {id:'st3',title:'Build live win-probability updater: Kafka → Spark Streaming → dashboard',phase:'3',type:'project',res:'Spark Structured Streaming docs'},
+    {id:'st4',title:'Study Apache Druid or ClickHouse for sub-second analytics queries',phase:'3',type:'concept',res:'Druid docs, ClickHouse docs'},
   ]},
-  {month:'August 2026',items:[
-    {id:'m23',text:'Hit 500 LeetCode — consolidate only, no new topics',priority:'high'},
-    {id:'m24',text:'Submit Microsoft + Meta Summer 2027 apps before flying out',priority:'high',n:[
-      'Apply before your flight — you don\'t need a US address or phone number for the initial application. Submit from India.',
-      'Microsoft: apply to both the general SWE Intern role AND the Research Intern role. Your Springer pub makes the research track a realistic shot.',
-      'Meta: apply at metacareers.com/students — not LinkedIn. The LinkedIn "Easy Apply" goes to a different, lower-priority pipeline.',
-      'Both open August–September. Watch the Pitt CSC tracker daily starting August 1 to catch the exact day.',
-    ],res:[
-      {i:'🔗',t:'Microsoft University Recruiting',s:'Opens Aug–Sep. Apply to both US and Microsoft IDC India',u:'https://careers.microsoft.com/v2/global/en/universityrecruiting.html'},
-      {i:'🔗',t:'Meta University — Intern applications',s:'Opens Aug–Sep. E3 SWE intern. DSA + behavioural',u:'https://www.metacareers.com/careerprograms/pathways/internships/'},
-    ]},
-    {id:'m25',text:'Apply MLH Fellowship Fall 2026 (~August deadline)',priority:'high',n:[
-      'Application: GitHub profile + one project you built + 3 short essays + a technical interview where you walk through your code line by line.',
-      'Submit your flagship project — it needs to be something you built alone and can explain every design decision completely.',
-      'The technical interview tests depth, not breadth. They will ask why you made specific implementation choices — not just what you built.',
-      'Acceptance rate is ~2.5%. Apply but treat it as a stretch goal, not a plan. Don\'t let it delay your main application effort.',
-    ],res:[
-      {i:'🔗',t:'MLH Fellowship — apply',s:'~2.5% acceptance, $5K stipend, 12 weeks. They ask you to explain every line of your code',u:'https://fellowship.mlh.io/'},
-      {i:'📋',t:'How to get selected for MLH Fellowship',s:'Detailed guide from a past fellow',u:'https://prathameshmutkure.hashnode.dev/mlh-fellowship-the-ultimate-guide-for-getting-selected'},
-    ]},
-    {id:'m26',text:'Set up Google Voice US number',res:[
-      {i:'🛠',t:'Google Voice',s:'Free US phone number — required for US job applications and interview scheduling',u:'https://voice.google.com/'},
-    ]},
-    {id:'m27',text:'GitHub: 3–5 pinned repos, live URLs + architecture READMEs',res:[
-      {i:'💡',t:'How to build a standout GitHub profile',s:'What recruiters actually look at — pinned repos, READMEs, contribution graph',u:'https://www.refontelearning.com/blog/enhancing-your-professional-profile-building-and-showcasing-full-stack-projects-on-github'},
-    ]},
-    {id:'m28',text:'LinkedIn updated: Stony Brook admit, MIND 2025 pub, shipped project',res:[
-      {i:'💡',t:'LinkedIn All-Star profile checklist',s:'Headline + About + Featured section — where to place your project and pub',u:'https://university.linkedin.com/linkedin-for-students'},
-    ]},
-    {id:'m29',text:'Get referrals at 3+ US companies via LinkedIn alumni search',n:[
-      'Search: go to Stony Brook University LinkedIn page → Alumni tab → filter by your target company name.',
-      'Target people who graduated 2022–2024 — they remember being new grads and are most likely to help.',
-      'Message (4 lines max): "Hi [name], I\'m joining Stony Brook MS CS this fall. I\'ve applied for the SWE intern role at [company]. I have a Springer/IEEE publication and a deployed AI project at [URL]. Would you be open to referring me?"',
-      'Personalise each message with one specific thing about their work or the company — no bulk copy-paste.',
-      'Follow up once after 7 days. If no reply, move on. Never follow up twice.',
-    ],res:[
-      {i:'🔍',t:'Stony Brook Alumni on LinkedIn',s:'Alumni tab → filter by company. Message SDE-1/2 who graduated 1–3 years ago',u:'https://www.linkedin.com/school/stony-brook-university/people/'},
-      {i:'📋',t:'a16z Speedrun Alpha Fellowship',s:'$20K equity-free grant for student/recent-grad founders. Apply alongside job apps',u:'https://speedrun.a16z.com/alpha'},
-    ]},
-    {id:'m30',text:'Contest rating target: 1,700+'},
-    {id:'m31',text:'✈ FLY TO STONY BROOK',priority:'now'},
+  {id:'mlops',icon:'⬡',name:'MLOps & productionization',tasks:[
+    {id:'mo1',title:'Dockerize Cricket Oracle — write Dockerfile + docker-compose.yml',phase:'1',type:'project',res:'Docker docs'},
+    {id:'mo2',title:'Add MLflow experiment tracking to your matchup models',phase:'2',type:'project',res:'mlflow.org'},
+    {id:'mo3',title:'Learn model versioning and serving basics (MLflow Model Registry)',phase:'2',type:'course',res:'MLflow docs'},
+    {id:'mo4',title:'Deploy a FastAPI endpoint serving a cricket prediction model on AWS EC2',phase:'2',type:'project',res:'FastAPI + uvicorn docs'},
+    {id:'mo5',title:'Explore Weights & Biases for experiment tracking',phase:'3',type:'tool',res:'wandb.ai'},
+  ]},
+  {id:'stats',icon:'≈',name:'Stats & ML for sports',tasks:[
+    {id:'sm1',title:'Work through Probabilistic Programming & Bayesian Methods for Hackers (free)',phase:'1',type:'course',res:'github.com/CamDavidsonPilon'},
+    {id:'sm2',title:'Build a Bayesian win probability model for T20 cricket using PyMC',phase:'2',type:'project',res:'PyMC docs + Cricsheet data'},
+    {id:'sm3',title:'Study time-series forecasting: ARIMA, Prophet, LSTM for player form',phase:'2',type:'course',res:'Hyndman & Athanasopoulos (free book)'},
+    {id:'sm4',title:'Build a player valuation model for IPL auction using age curves + form',phase:'2',type:'project',res:'Cricsheet + CricViz methodology articles'},
+    {id:'sm5',title:'Learn survival analysis (lifelines library) — injury/career longevity',phase:'3',type:'course',res:'lifelines.readthedocs.io'},
+    {id:'sm6',title:'Study DLS method mechanics and pitch condition regression modeling',phase:'3',type:'concept',res:'CricViz articles, academic papers'},
+  ]},
+  {id:'cricket',icon:'◇',name:'Cricket-specific analytics',tasks:[
+    {id:'cr1',title:'Read every CricViz methodology article — understand their metric definitions',phase:'1',type:'study',res:'cricviz.com/insights'},
+    {id:'cr2',title:'Build a control% metric replication from Cricsheet data in Python',phase:'1',type:'project',res:'Cricsheet.org ball-by-ball'},
+    {id:'cr3',title:'Replicate a batter quality model: control, scoring intent, matchup splits',phase:'2',type:'project',res:'CricViz + Cricket Oracle data'},
+    {id:'cr4',title:'Build a T20 auction value model — runs-above-replacement vs salary tier',phase:'2',type:'project',res:'Cricsheet + historical auction data'},
+    {id:'cr5',title:'Analyse pitch and dew factor effects on powerplay/death bowling metrics',phase:'2',type:'project',res:'Cricsheet + weather APIs'},
+    {id:'cr6',title:'Write a public methodology article on one cricket metric you built',phase:'3',type:'publish',res:'Medium / Substack / personal site'},
+  ]},
+  {id:'football',icon:'○',name:'Football analytics (portfolio)',tasks:[
+    {id:'fo1',title:'Download StatsBomb open data and run basic event analysis in Python',phase:'1',type:'project',res:'github.com/statsbomb/open-data'},
+    {id:'fo2',title:'Build an xG model from StatsBomb data — logistic regression baseline',phase:'1',type:'project',res:'statsbombpy + sklearn'},
+    {id:'fo3',title:'Make a pitch map / shot map using mplsoccer',phase:'1',type:'project',res:'mplsoccer.readthedocs.io'},
+    {id:'fo4',title:'Study socceraction library — VAEP and xT frameworks',phase:'2',type:'course',res:'github.com/ML-KULeuven/socceraction'},
+    {id:'fo5',title:'Build a pressing intensity / PPDA metric on StatsBomb data',phase:'2',type:'project',res:'StatsBomb blog methodology posts'},
+  ]},
+  {id:'viz',icon:'▣',name:'Visualization & communication',tasks:[
+    {id:'vi1',title:'Complete Tableau Public course and build one cricket analytics dashboard',phase:'1',type:'course',res:'Tableau Public (free)'},
+    {id:'vi2',title:'Build a coach-facing match report template (1-page, visual-first) in Python',phase:'1',type:'project',res:'matplotlib + Cricket Oracle'},
+    {id:'vi3',title:'Practice explaining a complex metric to a non-technical person — record yourself',phase:'2',type:'practice',res:'self-practice'},
+    {id:'vi4',title:'Write 3 LinkedIn posts on cricket analytics insights',phase:'2',type:'publish',res:'LinkedIn'},
+    {id:'vi5',title:'Build a live cricket dashboard (Streamlit or Next.js) using your Supabase data',phase:'2',type:'project',res:'streamlit.io'},
+  ]},
+  {id:'cv',icon:'◈',name:'Computer vision (edge bet)',tasks:[
+    {id:'cv1',title:'Learn OpenCV basics: video reading, frame extraction, object detection',phase:'2',type:'course',res:'pyimagesearch.com'},
+    {id:'cv2',title:'Run MediaPipe pose estimation on a cricket batting video — extract joint coords',phase:'2',type:'project',res:'google.github.io/mediapipe'},
+    {id:'cv3',title:'Build stroke classification model (pull/drive/cut) using pose keypoints + RF',phase:'3',type:'project',res:'scikit-learn + MediaPipe'},
+    {id:'cv4',title:'Study Hawk-Eye and Second Spectrum architecture at a high level',phase:'3',type:'study',res:'Engineering blogs / research papers'},
+  ]},
+  {id:'llm',icon:'⬡',name:'LLM sports intelligence',tasks:[
+    {id:'ll1',title:'Clean up Cricket Oracle codebase — add README, architecture diagram, tests',phase:'1',type:'project',res:'your existing repo'},
+    {id:'ll2',title:'Push Cricket Oracle to public GitHub with proper docs',phase:'1',type:'publish',res:'github.com'},
+    {id:'ll3',title:'Add structured feedback parsing loop: post-match analysis → KB entries → prompt',phase:'2',type:'project',res:'Cricket Oracle BRIEFING_SPEC.md'},
+    {id:'ll4',title:'Build natural language query layer: "who performs best in powerplay vs left arm pace"',phase:'2',type:'project',res:'LangChain / direct API over Supabase'},
+    {id:'ll5',title:'Write a blog post framing Cricket Oracle as a product for CricViz/franchise audience',phase:'3',type:'publish',res:'Medium / personal site'},
+  ]},
+  {id:'network',icon:'◉',name:'Network & visibility',tasks:[
+    {id:'nw1',title:'Follow and engage with CricViz, StatsBomb, Opta analysts on Twitter/LinkedIn',phase:'1',type:'network',res:'LinkedIn + Twitter/X'},
+    {id:'nw2',title:'Join Friends of Tracking / cricket analytics Discord communities',phase:'1',type:'network',res:'Google for invite links'},
+    {id:'nw3',title:'Email one cricket analytics person a thoughtful question — start a conversation',phase:'2',type:'network',res:'CricViz team LinkedIn'},
+    {id:'nw4',title:'Apply to CricViz / Opta / Hawk-Eye internship — target summer of Year 2',phase:'2',type:'apply',res:'Their careers pages'},
+    {id:'nw5',title:'Submit a cricket analytics piece to an open-source analytics conference',phase:'3',type:'publish',res:'SSAC, NESSIS, or Journal of Sports Analytics'},
   ]},
 ];
 
-let state={dsa:{total:'',hard:'',rating:'',mocks:''},topics:{},apps:[],oss:[],milestones:{},resOpen:{},notesOpen:{}};
+const MS = [
+  {month:'June 2026 — RIGHT NOW',items:[
+    {id:'j1',text:'Ship flagship project live with real URL',priority:'now',n:['Week 1: scaffold + auth + exactly one core feature working end-to-end. Nothing else.','Week 2: polish, error handling, README, deploy to Vercel.','Do NOT wait for it to be ready. Ship at 70% polish. Real users tell you what matters.','Share on launch: r/webdev, IndieHackers, relevant Discords, LinkedIn.','README must have: one-sentence description, live URL, screenshot/GIF, tech stack, how it works.'],res:[{i:'🛠',t:'Vercel — deploy Next.js in 2 minutes',s:'Free tier, instant deploys',u:'https://vercel.com/new'},{i:'📣',t:'IndieHackers — share what you built',s:'Active community, real feedback',u:'https://www.indiehackers.com/post/share-what-youve-built'}]},
+    {id:'j2',text:'Get first OSS PR merged (supabase/supabase or langchain-ai/langchain)',priority:'now',n:['Week 1: set up local dev, read CONTRIBUTING.md, join project Discord.','Week 2: find good-first-issue matching your stack, comment on it before starting.','Week 3: submit PR — focused on one thing only.','Do NOT make typo-only or docs-only PRs as first contribution.','If maintainer requests changes, respond within 24 hours.'],res:[{i:'🔍',t:'goodfirstissue.dev — TypeScript filter',s:'Best discovery tool for your stack',u:'https://goodfirstissue.dev/language/typescript'},{i:'🔗',t:'supabase/supabase — CONTRIBUTING.md',s:'Welcoming maintainers, JS client issues',u:'https://github.com/supabase/supabase/blob/master/CONTRIBUTING.md'}]},
+    {id:'j3',text:'LC contest rating target: 1,400–1,500'},
+    {id:'j4',text:'Push Cricket Oracle to public GitHub with proper README and architecture docs',priority:'sports',n:['This IS your sports analytics portfolio. Everything else is secondary.','README: one-sentence description, architecture diagram, tech stack, sample output, how to run locally.','Add a BRIEFING_SPEC.md that explains the system design at a high level.','This repo should be the first link in every sports-adjacent application or email.']},
+  ]},
+  {month:'July 2026 — CRITICAL DEADLINES',items:[
+    {id:'j5',text:'Apply Amazon ML Summer School — closes ~July 31',priority:'now',n:['Application is a short form + online test: ML theory MCQ + 2 DSA medium problems.','Mention your Springer pub prominently — very few applicants have peer-reviewed publications.','The school itself is 5 weekends in August, remote, free, run by Amazon Scientists.','Treat it as long-game networking — connections occasionally convert to intern referrals.'],res:[{i:'🔗',t:'Amazon ML Summer School',s:'Free 5-weekend training. Apply as soon as open.',u:'https://www.amazon.science/academic-engagements/amazon-launches-annual-ml-summer-school-in-india'},{i:'📋',t:'How to prepare for AMLS selection test',s:'MCQ ML theory + 2 DSA mediums',u:'https://www.lets-code.co.in/blogs/amazon-ml-summer-school-2025-how-to-apply-prepare-and-get-selected/'}]},
+    {id:'j6',text:'Apply LFX Mentorship Term 2 — window July 30 to Aug 12',priority:'now',n:['Set a phone reminder for July 30 RIGHT NOW. The 2-week window is strict — no late applications.','Application requires: 2–3 PR links to the target project, motivation statement, background.','You need existing contributions to apply credibly — this is why OSS starts this month.','Stipend: $3,000 for 12 weeks, fully remote.','If you miss this cycle, Term 3 runs early 2027 after you enroll at Stony Brook.'],res:[{i:'🔗',t:'LFX Mentorship — apply here',s:'$3,000 stipend, remote, 12 weeks. Applications open July 30.',u:'https://mentorship.lfx.linuxfoundation.org/'},{i:'📋',t:'LFX application guide',s:'Reference your OSS PRs + Springer pub — both are weighted',u:'https://github.com/cncf/mentoring/blob/main/programs/lfx-mentorship/README.md'}]},
+    {id:'j7',text:'Submit Amazon SWE Intern 2027 (US) application',priority:'high',n:['Apply the day the listing appears — Amazon fills on rolling basis and closes when headcount is full, often before October.','OA format: 2 DSA problems + work simulation. Same as India OA.','You can apply from India before you fly. No US address or phone number needed for initial application.','Use Simplify.jobs to autofill the Workday form.'],res:[{i:'🔗',t:'Amazon Jobs — SWE Intern 2027 (US)',s:'Apply day it opens — Amazon reviews rolling',u:'https://www.amazon.jobs'},{i:'📋',t:'Pitt CSC Summer 2027 tracker',s:'Watch daily in July — lists Amazon the day apps open',u:'https://github.com/SimplifyJobs/Summer2025-Internships'}]},
+    {id:'j8',text:'Submit Databricks Summer 2027 intern application',priority:'high',res:[{i:'🔗',t:'Databricks University Recruiting',s:'Sponsors CPT/OPT. HackerRank OA + phone screens.',u:'https://www.databricks.com/company/careers/open-positions?department=University+Recruiting'}]},
+    {id:'j9',text:'Hit 400 LeetCode — 2 mocks/week',priority:'high',n:['Do at least 1 mock before any real OA. Never walk into Amazon cold.','Enforce 35-minute hard limit per problem during mocks — real OA pacing.','Talk out loud the entire time. Silence hurts in interviews.','After every mock: write down the one pattern you struggled most with, then solve 5 more of that type.'],res:[{i:'🎤',t:'interviewing.io — free mock interviews',s:'Real engineers, recordings for self-review',u:'https://interviewing.io'},{i:'🎤',t:'Pramp — peer mock interviews',s:'Free, peer-to-peer',u:'https://www.pramp.com'}]},
+    {id:'j10',text:'Get 2nd substantive OSS PR merged'},
+    {id:'j11',text:'Polish US-format resume (1 page, quantified bullets)',n:['Header: name + Google Voice number + GitHub + LinkedIn. No photo, no DOB.','Each bullet: [Action verb] + [what you built] + [quantified metric].','Publications section below Education. Format: Author, Author. "Title." Conference, Year. Publisher.','Skills section: list tech stack only — no "proficient in" qualifiers.','One page strictly.'],res:[{i:'🛠',t:'Resume Worded',s:'Free AI feedback against FAANG standards',u:'https://resumeworded.com/resume-scanner'},{i:'📋',t:'r/cscareerquestions resume wiki',s:'Canonical guide for US tech resume format',u:'https://www.reddit.com/r/cscareerquestions/wiki/faq_resumes/'}]},
+    {id:'j12',text:'LC contest rating target: 1,600–1,650'},
+  ]},
+  {month:'August 2026',items:[
+    {id:'a1',text:'Submit Microsoft + Meta Summer 2027 apps before flying out',priority:'high',n:['Apply before your flight — no US address or phone needed for initial application.','Microsoft: apply to both general SWE Intern AND Research Intern — your Springer pub makes research track realistic.','Meta: apply at metacareers.com/students — NOT LinkedIn Easy Apply (lower priority pipeline).','Both open August–September. Watch Pitt CSC tracker daily from Aug 1.'],res:[{i:'🔗',t:'Microsoft University Recruiting',s:'Opens Aug–Sep. Apply to both US and IDC India.',u:'https://careers.microsoft.com/v2/global/en/universityrecruiting.html'},{i:'🔗',t:'Meta University — Intern applications',s:'Opens Aug–Sep. E3 SWE intern.',u:'https://www.metacareers.com/careerprograms/pathways/internships/'}]},
+    {id:'a2',text:'Apply MLH Fellowship Fall 2026',priority:'high',n:['Application: GitHub profile + one project you built + 3 short essays + technical interview where you explain every line.','Submit your flagship project — must be something you built alone and can explain every design decision.','Acceptance rate ~2.5%. Apply but treat as stretch goal.'],res:[{i:'🔗',t:'MLH Fellowship — apply',s:'~2.5% acceptance, $5K stipend, 12 weeks',u:'https://fellowship.mlh.io/'}]},
+    {id:'a3',text:'Set up Google Voice US number',res:[{i:'🛠',t:'Google Voice',s:'Free US phone number — required for US job apps and interview scheduling',u:'https://voice.google.com/'}]},
+    {id:'a4',text:'GitHub: 3–5 pinned repos with live URLs + architecture READMEs'},
+    {id:'a5',text:'LinkedIn: Stony Brook admit + MIND 2025 pub + shipped project all visible'},
+    {id:'a6',text:'Get referrals at 3+ US companies via Stony Brook alumni LinkedIn search',n:['Go to Stony Brook University LinkedIn → Alumni tab → filter by target company.','Target people who graduated 2022–2024.','Message (4 lines): "Hi [name], I\'m joining Stony Brook MS DS this fall. Applied for SWE intern at [company]. I have a Springer/IEEE pub and a deployed AI project at [URL]. Would you be open to referring me?"'],res:[{i:'🔍',t:'Stony Brook Alumni on LinkedIn',s:'Alumni tab → filter by company',u:'https://www.linkedin.com/school/stony-brook-university/people/'}]},
+    {id:'a7',text:'Hit 500 LeetCode — consolidate, no new topics',priority:'high'},
+    {id:'a8',text:'LC contest rating target: 1,700+'},
+    {id:'a9',text:'✈ FLY TO STONY BROOK',priority:'now'},
+  ]},
+  {month:'Year 1 at Stony Brook — Sports Analytics',items:[
+    {id:'s1',text:'Build dbt project on Cricsheet Supabase data — models, tests, documentation',priority:'sports',res:[{i:'🔗',t:'dbt Learn — fundamentals course (free)',s:'Official course, takes ~4 hours',u:'https://courses.getdbt.com'}]},
+    {id:'s2',text:'Set up Snowflake free trial, load Cricsheet, run dbt against it',priority:'sports'},
+    {id:'s3',text:'Set up AWS free tier — S3 + Glue + Athena mini pipeline on cricket data',priority:'sports'},
+    {id:'s4',text:'Convert match_day.py into an Airflow DAG with Docker',priority:'sports'},
+    {id:'s5',text:'Dockerize Cricket Oracle — Dockerfile + docker-compose',priority:'sports'},
+    {id:'s6',text:'Complete Tableau Public course + build one cricket analytics dashboard',priority:'sports'},
+    {id:'s7',text:'Build StatsBomb xG model in Python — logistic regression baseline + mplsoccer viz',priority:'sports'},
+    {id:'s8',text:'Read through all CricViz methodology articles + summarise key metrics in a doc',priority:'sports'},
+    {id:'s9',text:'Work through Probabilistic Programming & Bayesian Methods for Hackers',priority:'sports'},
+    {id:'s10',text:'Follow CricViz / StatsBomb / Opta analysts, join Friends of Tracking Discord',priority:'sports'},
+  ]},
+  {month:'Year 2 — Deepen + apply to sports orgs',items:[
+    {id:'s11',text:'Build Bayesian T20 win probability model with PyMC',priority:'sports'},
+    {id:'s12',text:'Build IPL auction value model (runs-above-replacement + age curves)',priority:'sports'},
+    {id:'s13',text:'Learn Kafka architecture + set up local cluster streaming ball-by-ball events',priority:'sports'},
+    {id:'s14',text:'Add MLflow tracking to your matchup models',priority:'sports'},
+    {id:'s15',text:'Deploy FastAPI cricket prediction endpoint on AWS EC2',priority:'sports'},
+    {id:'s16',text:'Run MediaPipe pose estimation on a batting video — extract joint coords',priority:'sports'},
+    {id:'s17',text:'Email one CricViz / Opta analyst a thoughtful, specific question',priority:'sports'},
+    {id:'s18',text:'Apply to CricViz / Opta / Hawk-Eye internship or research role',priority:'sports'},
+    {id:'s19',text:'Write a LinkedIn / Medium post on a cricket metric you built',priority:'sports'},
+    {id:'s20',text:'Add natural language query layer to Cricket Oracle: "best vs left arm pace in powerplay"',priority:'sports'},
+  ]},
+  {month:'Year 3 — Edge skills + job applications',items:[
+    {id:'s21',text:'Build live win-probability pipeline: Kafka → Spark Streaming → dashboard',priority:'sports'},
+    {id:'s22',text:'Build stroke classification model (pull/drive/cut) using MediaPipe + Random Forest',priority:'sports'},
+    {id:'s23',text:'Learn Databricks basics (free training)',priority:'sports'},
+    {id:'s24',text:'Submit a cricket analytics methodology article to Medium / personal site',priority:'sports'},
+    {id:'s25',text:'Apply to SSAC, NESSIS, or Journal of Sports Analytics with a cricket project',priority:'sports'},
+    {id:'s26',text:'Apply to CricViz / IPL franchise analytics / BCCI CoE data roles',priority:'sports'},
+    {id:'s27',text:'Write Cricket Oracle blog post framing it as a product for franchise audiences',priority:'sports'},
+  ]},
+];
+
+let sfFilter = 'all';
+let state = {
+  dsa:{total:'',hard:'',rating:'',mocks:''},
+  topics:{},apps:[],oss:[],milestones:{},
+  resOpen:{},notesOpen:{},
+  sportsDone:{},
+  scatOpen:{}
+};
+
 function load(){try{const r=localStorage.getItem(SK);if(r)state={...state,...JSON.parse(r)}}catch(e){}}
 function save(){try{localStorage.setItem(SK,JSON.stringify(state))}catch(e){}}
 
 function saveStats(){
-  ['total','hard','rating','mocks'].forEach(k=>state.dsa[k]=document.getElementById('dsa-'+k).value);
+  ['total','hard','rating','mocks'].forEach(k=>{
+    const el=document.getElementById('dsa-'+k);
+    if(el)state.dsa[k]=el.value;
+  });
   const p=Math.min(100,Math.round((parseInt(state.dsa.total)||0)/500*100));
   document.getElementById('dsa-bar').style.width=p+'%';
   document.getElementById('dsa-pct').textContent=p+'%';
@@ -483,7 +460,9 @@ function saveStats(){
 function renderTopics(){
   document.getElementById('topicGrid').innerHTML=TOPICS.map(t=>`
     <div class="topic-item ${state.topics[t.id]?'done':''}" onclick="toggleTopic('${t.id}')">
-      <div class="topic-dot"></div><div class="topic-name">${t.name}</div><div class="topic-count">~${t.target}</div>
+      <div class="topic-dot"></div>
+      <div class="topic-name">${t.name}</div>
+      <div class="topic-count">~${t.target}</div>
     </div>`).join('');
 }
 function toggleTopic(id){state.topics[id]=!state.topics[id];renderTopics();save();}
@@ -491,15 +470,27 @@ function toggleTopic(id){state.topics[id]=!state.topics[id];renderTopics();save(
 function addApp(){
   const c=document.getElementById('app-company').value.trim();
   if(!c)return;
-  state.apps.unshift({id:Date.now(),company:c,role:document.getElementById('app-role').value.trim(),tier:document.getElementById('app-tier').value,status:document.getElementById('app-status').value,date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})});
-  document.getElementById('app-company').value='';document.getElementById('app-role').value='';
+  state.apps.unshift({
+    id:Date.now(),company:c,
+    role:document.getElementById('app-role').value.trim(),
+    tier:document.getElementById('app-tier').value,
+    status:document.getElementById('app-status').value,
+    date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})
+  });
+  document.getElementById('app-company').value='';
+  document.getElementById('app-role').value='';
   renderApps();save();
 }
 function updateAppStatus(id,val){const a=state.apps.find(x=>x.id===id);if(a){a.status=val;renderApps();save();}}
 function deleteApp(id){state.apps=state.apps.filter(x=>x.id!==id);renderApps();save();}
 function renderApps(){
   const sl={pending:'Pending',applied:'Applied',oa:'OA',interview:'Interview',offer:'Offer ✓',rejected:'Rejected'};
-  const tl={A:'<span class="tier-a">Tier A</span>',B:'<span class="tier-b">Tier B</span>',C:'<span style="color:var(--warn)">US 2027</span>',INT:'<span style="color:var(--accent2)">Intern</span>'};
+  const tl={
+    US:'<span style="color:var(--accent3)">US Intern</span>',
+    AI:'<span style="color:var(--accent)">AI Startup</span>',
+    FT:'<span style="color:var(--warn)">Full-time</span>',
+    SP:'<span style="color:var(--accent2)">Sports</span>'
+  };
   document.getElementById('count-total').textContent=state.apps.length;
   document.getElementById('count-active').textContent=state.apps.filter(a=>a.status==='applied'||a.status==='oa').length;
   document.getElementById('count-int').textContent=state.apps.filter(a=>a.status==='interview').length;
@@ -512,7 +503,9 @@ function renderApps(){
     <td style="font-weight:500">${a.company}</td>
     <td style="color:var(--muted)">${a.role||'—'}</td>
     <td>${tl[a.tier]||a.tier}</td>
-    <td><select class="sel" style="padding:3px 8px;font-size:11px" onchange="updateAppStatus(${a.id},this.value)">${Object.keys(sl).map(s=>`<option value="${s}" ${a.status===s?'selected':''}>${sl[s]}</option>`).join('')}</select></td>
+    <td><select class="sel" style="padding:3px 8px;font-size:11px" onchange="updateAppStatus(${a.id},this.value)">
+      ${Object.keys(sl).map(s=>`<option value="${s}" ${a.status===s?'selected':''}>${sl[s]}</option>`).join('')}
+    </select></td>
     <td style="color:var(--muted);font-size:11px">${a.date}</td>
     <td><button class="btn btn-sm btn-del" onclick="deleteApp(${a.id})">✕</button></td>
   </tr>`).join('');
@@ -521,8 +514,13 @@ function renderApps(){
 function addOSS(){
   const r=document.getElementById('oss-repo').value.trim();
   if(!r)return;
-  state.oss.unshift({id:Date.now(),repo:r,desc:document.getElementById('oss-desc').value.trim(),status:document.getElementById('oss-status').value});
-  document.getElementById('oss-repo').value='';document.getElementById('oss-desc').value='';
+  state.oss.unshift({
+    id:Date.now(),repo:r,
+    desc:document.getElementById('oss-desc').value.trim(),
+    status:document.getElementById('oss-status').value
+  });
+  document.getElementById('oss-repo').value='';
+  document.getElementById('oss-desc').value='';
   renderOSS();save();
 }
 function updateOSSStatus(id,val){const o=state.oss.find(x=>x.id===id);if(o){o.status=val;renderOSS();save();}}
@@ -539,7 +537,9 @@ function renderOSS(){
   c.innerHTML=state.oss.map(o=>`<div class="oss-card">
     <div><div class="oss-repo">${o.repo}</div><div class="oss-desc">${o.desc||'No description'}</div></div>
     <div class="oss-actions">
-      <select class="sel" style="padding:3px 8px;font-size:11px" onchange="updateOSSStatus(${o.id},this.value)">${['planned','in-progress','submitted','merged'].map(s=>`<option value="${s}" ${o.status===s?'selected':''}>${sl[s]}</option>`).join('')}</select>
+      <select class="sel" style="padding:3px 8px;font-size:11px" onchange="updateOSSStatus(${o.id},this.value)">
+        ${['planned','in-progress','submitted','merged'].map(s=>`<option value="${s}" ${o.status===s?'selected':''}>${sl[s]}</option>`).join('')}
+      </select>
       <button class="btn btn-sm btn-del" onclick="deleteOSS(${o.id})">✕</button>
     </div>
   </div>`).join('');
@@ -553,16 +553,21 @@ function renderMilestones(){
   document.getElementById('milestonesContainer').innerHTML=MS.map(block=>{
     const done=block.items.filter(i=>state.milestones[i.id]).length;
     return `<div class="month-block">
-      <div class="month-title">${block.month} <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono'">${done}/${block.items.length}</span></div>
+      <div class="month-title">${block.month}
+        <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono'">${done}/${block.items.length}</span>
+      </div>
       ${block.items.map(item=>{
-        const hasR=item.res&&item.res.length>0;
         const hasN=item.n&&item.n.length>0;
+        const hasR=item.res&&item.res.length>0;
         const resOpen=state.resOpen[item.id];
         const notesOpen=state.notesOpen[item.id];
+        const ptag=item.priority==='now'?'<span class="priority-tag p-now">NOW</span>':
+                   item.priority==='high'?'<span class="priority-tag p-high">HIGH</span>':
+                   item.priority==='sports'?'<span class="priority-tag p-sports">SPORTS</span>':'';
         return `<div class="milestone-item ${state.milestones[item.id]?'done':''}">
           <div class="milestone-row" onclick="toggleMilestone('${item.id}')">
             <div class="milestone-check">${state.milestones[item.id]?'✓':''}</div>
-            <div class="milestone-text">${item.text}${item.priority==='now'?'<span class="priority-tag p-now">NOW</span>':''}${item.priority==='high'?'<span class="priority-tag p-high">HIGH</span>':''}</div>
+            <div class="milestone-text">${item.text}${ptag}</div>
           </div>
           ${(hasN||hasR)?`<div class="panel-toggles">
             ${hasN?`<button class="notes-btn" onclick="toggleNotes('${item.id}',event)">${notesOpen?'▾ hide notes':'▸ notes ('+item.n.length+')'}</button>`:''}
@@ -587,19 +592,128 @@ function renderMilestones(){
   }).join('');
 }
 
+/* SPORTS TAB */
+function setSF(f,btn){
+  sfFilter=f;
+  document.querySelectorAll('.sf-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderSports();
+}
+
+function toggleSportsTask(id){
+  state.sportsDone[id]=!state.sportsDone[id];
+  renderSports();
+  save();
+}
+
+function toggleScat(id){
+  state.scatOpen[id]=!state.scatOpen[id];
+  renderSports();
+  save();
+}
+
+function renderSports(){
+  const allTasks=SPORTS_DATA.flatMap(c=>c.tasks);
+  const total=allTasks.length;
+  const done=allTasks.filter(t=>state.sportsDone[t.id]).length;
+  const y1left=allTasks.filter(t=>t.phase==='1'&&!state.sportsDone[t.id]).length;
+  const y3left=allTasks.filter(t=>t.phase==='3'&&!state.sportsDone[t.id]).length;
+  const pct=total?Math.round(done/total*100):0;
+
+  document.getElementById('sp-total').textContent=total;
+  document.getElementById('sp-done').textContent=done;
+  document.getElementById('sp-y1').textContent=y1left;
+  document.getElementById('sp-y3').textContent=y3left;
+  document.getElementById('sp-bar').style.width=pct+'%';
+  document.getElementById('sp-pct').textContent=pct+'%';
+
+  const container=document.getElementById('sportsCategories');
+  container.innerHTML='';
+
+  SPORTS_DATA.forEach(cat=>{
+    let tasks=cat.tasks;
+    if(sfFilter==='done') tasks=tasks.filter(t=>state.sportsDone[t.id]);
+    else if(sfFilter!=='all') tasks=tasks.filter(t=>t.phase===sfFilter);
+    if(tasks.length===0) return;
+
+    const catDone=tasks.filter(t=>state.sportsDone[t.id]).length;
+    const isOpen=state.scatOpen[cat.id]!==false;
+
+    const div=document.createElement('div');
+    div.className='scat';
+    div.innerHTML=`
+      <div class="scat-header" onclick="toggleScat('${cat.id}')">
+        <span class="scat-icon">${cat.icon}</span>
+        <span class="scat-name">${cat.name}</span>
+        <span class="scat-progress">${catDone}/${tasks.length}</span>
+        <span class="scat-chev ${isOpen?'open':''}">▾</span>
+      </div>
+      ${isOpen?`<div class="stasks">
+        ${tasks.map(t=>{
+          const isDone=state.sportsDone[t.id];
+          const phClass=t.phase==='1'?'ph1':t.phase==='2'?'ph2':'ph3';
+          const phLabel=t.phase==='1'?'year 1':t.phase==='2'?'year 2':'year 3';
+          return `<div class="stask ${isDone?'done':''}" onclick="toggleSportsTask('${t.id}')">
+            <div class="stask-check">${isDone?'✓':''}</div>
+            <div class="stask-body">
+              <div class="stask-title">${t.title}</div>
+              <div class="stask-meta">
+                <span class="phase-pill ${phClass}">${phLabel}</span>
+                <span class="type-pill">${t.type}</span>
+              </div>
+              <div class="stask-res">→ ${t.res}</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`:''}
+    `;
+    container.appendChild(div);
+  });
+
+  if(container.innerHTML===''){
+    container.innerHTML='<div class="empty-state">No tasks match this filter.</div>';
+  }
+
+  updateOverall();
+}
+
+function updateOverall(){
+  const sportsDoneCount=Object.values(state.sportsDone).filter(Boolean).length;
+  const msDoneCount=Object.values(state.milestones).filter(Boolean).length;
+  const total=SPORTS_DATA.flatMap(c=>c.tasks).length + MS.flatMap(b=>b.items).length;
+  const done=sportsDoneCount+msDoneCount;
+  document.getElementById('overallBadge').textContent=done+' / '+total+' tasks';
+}
+
 function switchTab(name){
-  ['dsa','apps','oss','milestones'].forEach(t=>document.getElementById('tab-'+t).style.display=t===name?'block':'none');
-  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['dsa','apps','oss','milestones'][i]===name));
+  ['sports','dsa','apps','oss','milestones'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display=t===name?'block':'none';
+  });
+  document.querySelectorAll('.tab').forEach((el,i)=>{
+    el.classList.toggle('active',['sports','dsa','apps','oss','milestones'][i]===name);
+  });
 }
 
 function init(){
   load();
   document.getElementById('dateBadge').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
-  ['total','hard','rating','mocks'].forEach(k=>{const el=document.getElementById('dsa-'+k);if(el)el.value=state.dsa[k]||'';});
+  ['total','hard','rating','mocks'].forEach(k=>{
+    const el=document.getElementById('dsa-'+k);
+    if(el)el.value=state.dsa[k]||'';
+  });
   const p=Math.min(100,Math.round((parseInt(state.dsa.total)||0)/500*100));
   document.getElementById('dsa-bar').style.width=p+'%';
   document.getElementById('dsa-pct').textContent=p+'%';
-  renderTopics();renderApps();renderOSS();renderMilestones();
+
+  SPORTS_DATA.forEach(cat=>{
+    if(state.scatOpen[cat.id]===undefined) state.scatOpen[cat.id]=true;
+  });
+
+  renderTopics();
+  renderApps();
+  renderOSS();
+  renderMilestones();
+  renderSports();
 }
 init();
 </script>
