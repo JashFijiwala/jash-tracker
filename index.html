@@ -135,6 +135,11 @@ select option{background:#1a1a24}
 .ph3{background:rgba(250,109,154,.15);color:var(--accent2)}
 .type-pill{font-size:10px;padding:2px 7px;border-radius:10px;background:rgba(42,42,58,.8);color:var(--muted);border:1px solid var(--border)}
 .stask-res{font-size:10px;color:var(--muted);margin-top:2px}
+.stask-desc{font-size:11px;color:#a09cb8;line-height:1.65;margin-top:7px;padding-top:7px;border-top:1px solid var(--border);display:none}
+.stask.expanded .stask-desc{display:block}
+.stask-expand-btn{font-size:10px;color:var(--accent);border:none;background:transparent;cursor:pointer;font-family:'JetBrains Mono',monospace;padding:0;margin-top:5px;opacity:.8}
+.stask-expand-btn:hover{opacity:1}
+.stask.done .stask-expand-btn{color:var(--muted)}
 </style>
 </head>
 <body>
@@ -284,90 +289,90 @@ const TOPICS = [
 
 const SPORTS_DATA = [
   {id:'sql',icon:'⬡',name:'SQL & data modeling',tasks:[
-    {id:'sq1',title:'Complete dbt fundamentals course (official dbt Learn, free)',phase:'1',type:'course',res:'courses.getdbt.com'},
-    {id:'sq2',title:'Build a dbt project on top of your Cricsheet Supabase data — models, tests, docs',phase:'1',type:'project',res:'your Cricket Oracle DB'},
-    {id:'sq3',title:'Learn window functions deeply: RANK, LAG, LEAD, NTILE on cricket data',phase:'1',type:'practice',res:'Mode SQL tutorial'},
-    {id:'sq4',title:'Set up Snowflake free trial, load Cricsheet data, run dbt against it',phase:'1',type:'project',res:'snowflake.com/try'},
-    {id:'sq5',title:'Study star schema vs OBT patterns — when to use each',phase:'2',type:'concept',res:'dbt docs: best practices'},
-    {id:'sq6',title:'Add data quality tests (dbt test + Great Expectations) to a pipeline',phase:'2',type:'project',res:'greatexpectations.io'},
+    {id:'sq1',title:'Complete dbt fundamentals course (official dbt Learn, free)',phase:'1',type:'course',res:'courses.getdbt.com',desc:'dbt (data build tool) is how analytics engineers write and test SQL transformations in production. Think of it as version-controlled, testable SQL that turns raw data into clean tables. The official course covers how to write models, run tests, and generate docs — takes about 4 hours.'},
+    {id:'sq2',title:'Build a dbt project on top of your Cricsheet Supabase data — models, tests, docs',phase:'1',type:'project',res:'your Cricket Oracle DB',desc:'Take the raw ball-by-ball tables in your existing Supabase DB and use dbt to build clean analytical models on top — things like "batsman runs per match" or "wickets by phase". The point is to get hands-on with dbt on data you already know, not toy data.'},
+    {id:'sq3',title:'Learn window functions deeply: RANK, LAG, LEAD, NTILE on cricket data',phase:'1',type:'practice',res:'Mode SQL tutorial',desc:'Window functions let you compute things like "a player\'s rolling average over the last 5 innings" or "rank batsmen by strike rate within each team" without collapsing rows. These appear constantly in sports analytics queries and are a common interview question.'},
+    {id:'sq4',title:'Set up Snowflake free trial, load Cricsheet data, run dbt against it',phase:'1',type:'project',res:'snowflake.com/try',desc:'Snowflake is the cloud data warehouse most sports orgs and data providers use. Sign up for the 30-day free trial, dump your Cricsheet CSVs into it, then point your dbt project at Snowflake instead of Postgres. Proves you can work outside the Supabase bubble.'},
+    {id:'sq5',title:'Study star schema vs OBT patterns — when to use each',phase:'2',type:'concept',res:'dbt docs: best practices',desc:'Star schema (fact + dimension tables) vs One Big Table are the two dominant ways to structure analytical data. Knowing when each is appropriate — and being able to talk about the trade-offs — comes up in analytics engineering interviews and is how senior people think about data models.'},
+    {id:'sq6',title:'Add data quality tests (dbt test + Great Expectations) to a pipeline',phase:'2',type:'project',res:'greatexpectations.io',desc:'Production pipelines break silently — a scraper returns wrong data and you don\'t notice for a week. dbt\'s built-in tests (not null, unique, accepted values) and Great Expectations let you write assertions that fail loudly. This is what separates a hobby project from something a franchise would trust.'},
   ]},
   {id:'cloud',icon:'☁',name:'Cloud infra (AWS)',tasks:[
-    {id:'cl1',title:'Complete AWS Cloud Practitioner — S3, IAM, EC2, Lambda basics',phase:'1',type:'course',res:'AWS Skill Builder (free)'},
-    {id:'cl2',title:'Build a mini pipeline: Cricsheet CSV → S3 → AWS Glue → Athena query',phase:'1',type:'project',res:'AWS free tier'},
-    {id:'cl3',title:'Deploy Cricket Oracle scraper as AWS Lambda + EventBridge cron',phase:'2',type:'project',res:'AWS Lambda docs'},
-    {id:'cl4',title:'Get AWS Solutions Architect Associate or Data Engineer Associate cert',phase:'2',type:'cert',res:'Stephane Maarek on Udemy'},
-    {id:'cl5',title:'Set up CloudWatch monitoring + alerting on a data pipeline',phase:'2',type:'project',res:'AWS CloudWatch docs'},
-    {id:'cl6',title:'Learn Databricks basics — appears in cricket analytics JDs',phase:'3',type:'course',res:'Databricks free training'},
+    {id:'cl1',title:'Complete AWS Cloud Practitioner — S3, IAM, EC2, Lambda basics',phase:'1',type:'course',res:'AWS Skill Builder (free)',desc:'AWS Cloud Practitioner is the entry-level cert that gives you a mental map of the whole AWS ecosystem. The key services to understand are S3 (file storage), IAM (permissions and access control), EC2 (virtual machines), and Lambda (serverless functions). Free course on AWS Skill Builder, exam is optional.'},
+    {id:'cl2',title:'Build a mini pipeline: Cricsheet CSV → S3 → AWS Glue → Athena query',phase:'1',type:'project',res:'AWS free tier',desc:'This is a classic data engineering pattern: store raw files in S3, use AWS Glue to catalogue and transform them, then query the result with Athena (SQL on S3). Build it with Cricsheet data so you\'re working with something meaningful while learning the AWS primitives.'},
+    {id:'cl3',title:'Deploy Cricket Oracle scraper as AWS Lambda + EventBridge cron',phase:'2',type:'project',res:'AWS Lambda docs',desc:'Lambda lets you run code without managing a server — your scraper runs when triggered, then disappears. EventBridge is the AWS scheduler (like a cron job in the cloud). Together they replace running your scraper locally on a schedule and make it production-grade.'},
+    {id:'cl4',title:'Get AWS Solutions Architect Associate or Data Engineer Associate cert',phase:'2',type:'cert',res:'Stephane Maarek on Udemy',desc:'SAA is the most widely recognised AWS cert and signals you can design a real cloud architecture, not just use individual services. Data Engineer Associate is newer and more directly relevant to analytics work. Stephane Maarek\'s Udemy course (go on sale for ₹500) is the standard prep path.'},
+    {id:'cl5',title:'Set up CloudWatch monitoring + alerting on a data pipeline',phase:'2',type:'project',res:'AWS CloudWatch docs',desc:'CloudWatch is AWS\'s logging and monitoring service. The goal here is to set it up so you get a Slack or email alert if your pipeline fails or takes too long. This is basic operational maturity — any production data system needs to tell someone when it breaks.'},
+    {id:'cl6',title:'Learn Databricks basics — appears in cricket analytics JDs',phase:'3',type:'course',res:'Databricks free training',desc:'Databricks is a managed Spark + data lakehouse platform that shows up in a lot of sports analytics JDs (especially CricViz and large franchise teams). It combines a notebook environment with production-grade Spark. Their free training academy covers the basics in a few hours.'},
   ]},
   {id:'pipe',icon:'⟳',name:'Pipeline orchestration',tasks:[
-    {id:'pi1',title:'Convert match_day.py into an Airflow DAG (local Docker setup)',phase:'1',type:'project',res:'Apache Airflow docs'},
-    {id:'pi2',title:'Learn Airflow core: DAGs, operators, XComs, sensors',phase:'1',type:'course',res:'Astronomer Academy (free)'},
-    {id:'pi3',title:'Build full Airflow pipeline: scrape → transform → load → alert',phase:'2',type:'project',res:'your Cricket Oracle project'},
-    {id:'pi4',title:'Explore Prefect or Dagster as lightweight alternatives',phase:'2',type:'concept',res:'prefect.io docs'},
-    {id:'pi5',title:'Set up pipeline failure alerting via Slack/email — operational practice',phase:'3',type:'project',res:'Airflow callbacks'},
+    {id:'pi1',title:'Convert match_day.py into an Airflow DAG (local Docker setup)',phase:'1',type:'project',res:'Apache Airflow docs',desc:'Airflow is the standard tool for scheduling and managing data pipelines. A DAG (Directed Acyclic Graph) is just a Python file that defines a set of tasks and the order they run in. Your match_day.py script is already doing this logic manually — Airflow formalises it with retries, logging, and a UI.'},
+    {id:'pi2',title:'Learn Airflow core: DAGs, operators, XComs, sensors',phase:'1',type:'course',res:'Astronomer Academy (free)',desc:'Operators are the building blocks of an Airflow DAG — PythonOperator runs a function, BashOperator runs a shell command, etc. XComs let tasks pass data to each other. Sensors wait for a condition (like a file arriving in S3). Astronomer Academy covers all of this for free in a few hours.'},
+    {id:'pi3',title:'Build full Airflow pipeline: scrape → transform → load → alert',phase:'2',type:'project',res:'your Cricket Oracle project',desc:'Chain together your actual Cricket Oracle steps — scrape match data, run transformations, load to Supabase, send a Slack alert when done — as a single Airflow DAG. This is the real-world proof that you can orchestrate a multi-step data pipeline, not just run scripts manually.'},
+    {id:'pi4',title:'Explore Prefect or Dagster as lightweight alternatives',phase:'2',type:'concept',res:'prefect.io docs',desc:'Prefect and Dagster are newer pipeline orchestration tools that are easier to set up than Airflow and have better Python-native APIs. Some smaller sports orgs use them instead of Airflow. Worth spending a day on each to understand the landscape and be able to talk about trade-offs.'},
+    {id:'pi5',title:'Set up pipeline failure alerting via Slack/email — operational practice',phase:'3',type:'project',res:'Airflow callbacks',desc:'Airflow has callbacks (on_failure_callback, on_success_callback) that let you send a message when a DAG fails or succeeds. Wiring this up to Slack or email is simple but it\'s what makes a pipeline feel like a real system rather than a script someone runs manually.'},
   ]},
   {id:'stream',icon:'⚡',name:'Real-time & streaming',tasks:[
-    {id:'st1',title:'Understand Kafka architecture: topics, partitions, consumers, producers',phase:'2',type:'concept',res:'Kafka: The Definitive Guide (free PDF)'},
-    {id:'st2',title:'Set up local Kafka cluster (Docker) and stream ball-by-ball match events',phase:'2',type:'project',res:'Confluent Kafka tutorials'},
-    {id:'st3',title:'Build live win-probability updater: Kafka → Spark Streaming → dashboard',phase:'3',type:'project',res:'Spark Structured Streaming docs'},
-    {id:'st4',title:'Study Apache Druid or ClickHouse for sub-second analytics queries',phase:'3',type:'concept',res:'Druid docs, ClickHouse docs'},
+    {id:'st1',title:'Understand Kafka architecture: topics, partitions, consumers, producers',phase:'2',type:'concept',res:'Kafka: The Definitive Guide (free PDF)',desc:'Kafka is a distributed message queue — data producers write events (like ball-by-ball deliveries) to topics, and consumers read from them in real time. Understanding topics, partitions, and the producer/consumer model is the conceptual foundation before you touch any code. The Definitive Guide is free online.'},
+    {id:'st2',title:'Set up local Kafka cluster (Docker) and stream ball-by-ball match events',phase:'2',type:'project',res:'Confluent Kafka tutorials',desc:'Run Kafka locally via Docker Compose (Confluent provides a ready-made setup). Write a Python producer that reads a Cricsheet JSON and sends each delivery as a Kafka event. Write a consumer that reads those events and prints them. This is the minimum hands-on proof you understand how Kafka works.'},
+    {id:'st3',title:'Build live win-probability updater: Kafka → Spark Streaming → dashboard',phase:'3',type:'project',res:'Spark Structured Streaming docs',desc:'Connect your Kafka stream to Spark Structured Streaming, which processes each new delivery event and updates a win probability estimate. Output the result to a simple dashboard (Streamlit or even just a console). This is the architecture that broadcast analytics systems actually use for live overlays.'},
+    {id:'st4',title:'Study Apache Druid or ClickHouse for sub-second analytics queries',phase:'3',type:'concept',res:'Druid docs, ClickHouse docs',desc:'Druid and ClickHouse are OLAP databases designed for sub-second queries on billions of rows — the kind of thing you need for real-time "fastest balls of the tournament" queries during a live broadcast. Understanding when and why these are used instead of Postgres or Snowflake is senior-level knowledge.'},
   ]},
   {id:'mlops',icon:'⬡',name:'MLOps & productionization',tasks:[
-    {id:'mo1',title:'Dockerize Cricket Oracle — write Dockerfile + docker-compose.yml',phase:'1',type:'project',res:'Docker docs'},
-    {id:'mo2',title:'Add MLflow experiment tracking to your matchup models',phase:'2',type:'project',res:'mlflow.org'},
-    {id:'mo3',title:'Learn model versioning and serving basics (MLflow Model Registry)',phase:'2',type:'course',res:'MLflow docs'},
-    {id:'mo4',title:'Deploy a FastAPI endpoint serving a cricket prediction model on AWS EC2',phase:'2',type:'project',res:'FastAPI + uvicorn docs'},
-    {id:'mo5',title:'Explore Weights & Biases for experiment tracking',phase:'3',type:'tool',res:'wandb.ai'},
+    {id:'mo1',title:'Dockerize Cricket Oracle — write Dockerfile + docker-compose.yml',phase:'1',type:'project',res:'Docker docs',desc:'Docker packages your app and all its dependencies into a container that runs identically everywhere. Writing a Dockerfile for Cricket Oracle means anyone can clone your repo and run it with one command, no manual setup. A docker-compose.yml adds the Supabase/Postgres service alongside it. This is table-stakes for any production ML project.'},
+    {id:'mo2',title:'Add MLflow experiment tracking to your matchup models',phase:'2',type:'project',res:'mlflow.org',desc:'MLflow tracks your ML experiments — every time you retrain a model, it logs the parameters, metrics, and the model artifact. Without it, you\'re just overwriting models and losing history. Adding mlflow.log_param() and mlflow.log_metric() calls to your existing matchup model training code is the starting point.'},
+    {id:'mo3',title:'Learn model versioning and serving basics (MLflow Model Registry)',phase:'2',type:'course',res:'MLflow docs',desc:'MLflow Model Registry lets you version models (staging vs production), compare them, and promote a new version when it outperforms the old one. This is how teams manage the lifecycle of a model without it being someone\'s local .pkl file. The MLflow docs walk through this with worked examples.'},
+    {id:'mo4',title:'Deploy a FastAPI endpoint serving a cricket prediction model on AWS EC2',phase:'2',type:'project',res:'FastAPI + uvicorn docs',desc:'FastAPI is a Python framework for building REST APIs. The goal here is to wrap your trained matchup or win-probability model in a FastAPI endpoint, deploy it on an EC2 instance, and be able to hit it with a POST request that returns a prediction. This is what "model serving" means in practice.'},
+    {id:'mo5',title:'Explore Weights & Biases for experiment tracking',phase:'3',type:'tool',res:'wandb.ai',desc:'W&B (Weights & Biases) is the experiment tracking tool more common in research-adjacent and AI lab environments. It does the same job as MLflow but has better visualisations and collaboration features. Worth knowing because CricViz and analytics teams that work closely with researchers tend to use it.'},
   ]},
   {id:'stats',icon:'≈',name:'Stats & ML for sports',tasks:[
-    {id:'sm1',title:'Work through Probabilistic Programming & Bayesian Methods for Hackers (free)',phase:'1',type:'course',res:'github.com/CamDavidsonPilon'},
-    {id:'sm2',title:'Build a Bayesian win probability model for T20 cricket using PyMC',phase:'2',type:'project',res:'PyMC docs + Cricsheet data'},
-    {id:'sm3',title:'Study time-series forecasting: ARIMA, Prophet, LSTM for player form',phase:'2',type:'course',res:'Hyndman & Athanasopoulos (free book)'},
-    {id:'sm4',title:'Build a player valuation model for IPL auction using age curves + form',phase:'2',type:'project',res:'Cricsheet + CricViz methodology articles'},
-    {id:'sm5',title:'Learn survival analysis (lifelines library) — injury/career longevity',phase:'3',type:'course',res:'lifelines.readthedocs.io'},
-    {id:'sm6',title:'Study DLS method mechanics and pitch condition regression modeling',phase:'3',type:'concept',res:'CricViz articles, academic papers'},
+    {id:'sm1',title:'Work through Probabilistic Programming & Bayesian Methods for Hackers (free)',phase:'1',type:'course',res:'github.com/CamDavidsonPilon',desc:'This is a free Jupyter notebook book that teaches Bayesian statistics through code rather than pure maths. Bayesian thinking is central to sports analytics — it\'s how you express uncertainty ("this player averages 35 but we\'ve only seen 4 innings"). Work through chapters 1–3 to get the intuition before using PyMC.'},
+    {id:'sm2',title:'Build a Bayesian win probability model for T20 cricket using PyMC',phase:'2',type:'project',res:'PyMC docs + Cricsheet data',desc:'PyMC is a Python library for Bayesian modelling. The idea is to build a model that, given the current match state (score, wickets, overs, pitch), outputs a probability distribution over final outcomes — not just a single number. Bayesian models handle small samples better than frequentist ones, which matters a lot in cricket.'},
+    {id:'sm3',title:'Study time-series forecasting: ARIMA, Prophet, LSTM for player form',phase:'2',type:'course',res:'Hyndman & Athanasopoulos (free book)',desc:'Player form is a time-series problem — you want to predict future performance based on recent trajectory. ARIMA and Prophet are classical methods; LSTM is the deep learning approach. Hyndman\'s Forecasting: Principles and Practice is the standard textbook and is free online. Apply one method to predict a batsman\'s next-innings score.'},
+    {id:'sm4',title:'Build a player valuation model for IPL auction using age curves + form',phase:'2',type:'project',res:'Cricsheet + CricViz methodology articles',desc:'Age curves model how a cricketer\'s output typically changes across their career — peaks around 27–30 for batsmen, declines after. Combined with recent form, you can estimate a player\'s expected value for the next 2–3 seasons, which is exactly what IPL franchise analytics teams do at auction time.'},
+    {id:'sm5',title:'Learn survival analysis (lifelines library) — injury/career longevity',phase:'3',type:'course',res:'lifelines.readthedocs.io',desc:'Survival analysis models the time until an event — here, the event is a player retiring, getting injured, or losing their place. It handles the fact that some players are still active (censored data). The lifelines library makes this accessible in Python. Relevant for franchise decisions about long-term contracts.'},
+    {id:'sm6',title:'Study DLS method mechanics and pitch condition regression modeling',phase:'3',type:'concept',res:'CricViz articles, academic papers',desc:'DLS (Duckworth-Lewis-Stern) is the rain interruption formula used in limited-overs cricket — understanding its mechanics helps you build better par-score models. Pitch condition modeling is about quantifying how much a surface helps pace vs spin, using factors like match location, toss, and historical data.'},
   ]},
   {id:'cricket',icon:'◇',name:'Cricket-specific analytics',tasks:[
-    {id:'cr1',title:'Read every CricViz methodology article — understand their metric definitions',phase:'1',type:'study',res:'cricviz.com/insights'},
-    {id:'cr2',title:'Build a control% metric replication from Cricsheet data in Python',phase:'1',type:'project',res:'Cricsheet.org ball-by-ball'},
-    {id:'cr3',title:'Replicate a batter quality model: control, scoring intent, matchup splits',phase:'2',type:'project',res:'CricViz + Cricket Oracle data'},
-    {id:'cr4',title:'Build a T20 auction value model — runs-above-replacement vs salary tier',phase:'2',type:'project',res:'Cricsheet + historical auction data'},
-    {id:'cr5',title:'Analyse pitch and dew factor effects on powerplay/death bowling metrics',phase:'2',type:'project',res:'Cricsheet + weather APIs'},
-    {id:'cr6',title:'Write a public methodology article on one cricket metric you built',phase:'3',type:'publish',res:'Medium / Substack / personal site'},
+    {id:'cr1',title:'Read every CricViz methodology article — understand their metric definitions',phase:'1',type:'study',res:'cricviz.com/insights',desc:'CricViz publishes detailed methodology pieces explaining how they build metrics like Control%, Expected Wickets, and Batter Quality. Reading these gives you the vocabulary and conceptual framework that hiring teams at CricViz and IPL franchises use — and signals you\'ve done your homework beyond generic DS skills.'},
+    {id:'cr2',title:'Build a control% metric replication from Cricsheet data in Python',phase:'1',type:'project',res:'Cricsheet.org ball-by-ball',desc:'Control% measures what fraction of deliveries a batter plays under control (no mistimed shots, no edges). CricViz defines it using shot quality — you can approximate it from Cricsheet using outcome proxies (dots, boundaries, wickets by type). Building your own version shows you can translate a published methodology into working code.'},
+    {id:'cr3',title:'Replicate a batter quality model: control, scoring intent, matchup splits',phase:'2',type:'project',res:'CricViz + Cricket Oracle data',desc:'A batter quality model combines multiple dimensions — how often they control deliveries, their scoring intent in different phases, and how they perform against specific bowling types. This is more complex than a simple average and is closer to how professional analysts actually evaluate batsmen.'},
+    {id:'cr4',title:'Build a T20 auction value model — runs-above-replacement vs salary tier',phase:'2',type:'project',res:'Cricsheet + historical auction data',desc:'Runs-above-replacement (RAR) asks: how many more runs does this player contribute compared to a league-average replacement? Map that to IPL auction prices to see who was overvalued vs undervalued. This kind of model is what franchise analytics teams actually build every year before the auction.'},
+    {id:'cr5',title:'Analyse pitch and dew factor effects on powerplay/death bowling metrics',phase:'2',type:'project',res:'Cricsheet + weather APIs',desc:'Dew in evening matches makes it harder to grip the ball, which dramatically affects death-bowling economy rates. Pitch deterioration affects spin effectiveness over time. Quantifying these effects using historical match data and weather APIs produces insights that aren\'t visible from raw averages alone.'},
+    {id:'cr6',title:'Write a public methodology article on one cricket metric you built',phase:'3',type:'publish',res:'Medium / Substack / personal site',desc:'Pick one metric you\'ve built — your control% replication, your auction model, anything — and write a 500–800 word piece explaining what it measures, how you built it, and what it reveals. This is how people in the cricket analytics community get noticed by CricViz and franchise teams. One good article matters more than 10 LinkedIn posts.'},
   ]},
   {id:'football',icon:'○',name:'Football analytics (portfolio)',tasks:[
-    {id:'fo1',title:'Download StatsBomb open data and run basic event analysis in Python',phase:'1',type:'project',res:'github.com/statsbomb/open-data'},
-    {id:'fo2',title:'Build an xG model from StatsBomb data — logistic regression baseline',phase:'1',type:'project',res:'statsbombpy + sklearn'},
-    {id:'fo3',title:'Make a pitch map / shot map using mplsoccer',phase:'1',type:'project',res:'mplsoccer.readthedocs.io'},
-    {id:'fo4',title:'Study socceraction library — VAEP and xT frameworks',phase:'2',type:'course',res:'github.com/ML-KULeuven/socceraction'},
-    {id:'fo5',title:'Build a pressing intensity / PPDA metric on StatsBomb data',phase:'2',type:'project',res:'StatsBomb blog methodology posts'},
+    {id:'fo1',title:'Download StatsBomb open data and run basic event analysis in Python',phase:'1',type:'project',res:'github.com/statsbomb/open-data',desc:'StatsBomb publishes free detailed event data from hundreds of matches — every pass, shot, dribble, and pressure. Use the statsbombpy Python library to load it into a dataframe and explore it. The goal is just to get comfortable with the data structure before building anything on top of it.'},
+    {id:'fo2',title:'Build an xG model from StatsBomb data — logistic regression baseline',phase:'1',type:'project',res:'statsbombpy + sklearn',desc:'Expected Goals (xG) estimates the probability that a given shot results in a goal, based on shot location, angle, body part, assist type etc. Build a logistic regression model using StatsBomb shot data. This is the canonical first football analytics project — everyone who works in football DS has done this.'},
+    {id:'fo3',title:'Make a pitch map / shot map using mplsoccer',phase:'1',type:'project',res:'mplsoccer.readthedocs.io',desc:'mplsoccer is a Python library that draws football pitches and overlays data on them. A shot map shows where shots were taken from, sized/coloured by xG. This is the staple output of football analytics — it\'s what coaches and scouts actually look at. The library makes it straightforward once you have StatsBomb data loaded.'},
+    {id:'fo4',title:'Study socceraction library — VAEP and xT frameworks',phase:'2',type:'course',res:'github.com/ML-KULeuven/socceraction',desc:'VAEP (Valuing Actions by Estimating Probabilities) and xT (Expected Threat) are frameworks for valuing every action in football, not just shots. xT asks "how much did this pass increase the probability of scoring?" VAEP does this more rigorously with ML. KU Leuven\'s socceraction library implements both on StatsBomb data.'},
+    {id:'fo5',title:'Build a pressing intensity / PPDA metric on StatsBomb data',phase:'2',type:'project',res:'StatsBomb blog methodology posts',desc:'PPDA (Passes Allowed Per Defensive Action) is a metric for how intensely a team presses — low PPDA means they allow few passes before winning the ball back. Calculate it per team per match from StatsBomb event data. Pressing analysis is a core output of football analytics departments and shows you understand tactical context.'},
   ]},
   {id:'viz',icon:'▣',name:'Visualization & communication',tasks:[
-    {id:'vi1',title:'Complete Tableau Public course and build one cricket analytics dashboard',phase:'1',type:'course',res:'Tableau Public (free)'},
-    {id:'vi2',title:'Build a coach-facing match report template (1-page, visual-first) in Python',phase:'1',type:'project',res:'matplotlib + Cricket Oracle'},
-    {id:'vi3',title:'Practice explaining a complex metric to a non-technical person — record yourself',phase:'2',type:'practice',res:'self-practice'},
-    {id:'vi4',title:'Write 3 LinkedIn posts on cricket analytics insights',phase:'2',type:'publish',res:'LinkedIn'},
-    {id:'vi5',title:'Build a live cricket dashboard (Streamlit or Next.js) using your Supabase data',phase:'2',type:'project',res:'streamlit.io'},
+    {id:'vi1',title:'Complete Tableau Public course and build one cricket analytics dashboard',phase:'1',type:'course',res:'Tableau Public (free)',desc:'Tableau is the BI tool used most commonly at sports franchises and data providers for coach-facing dashboards. The free Tableau Public version is fully functional. Build a dashboard showing IPL batting performance by phase — something a coach could actually use. The course on Tableau\'s own site covers the basics in a few hours.'},
+    {id:'vi2',title:'Build a coach-facing match report template (1-page, visual-first) in Python',phase:'1',type:'project',res:'matplotlib + Cricket Oracle',desc:'The goal is a single A4/PDF output that shows the most important pre-match intel a captain or coach needs — matchup heatmaps, bowler phase economy, batter vs pace/spin splits — in a format that takes 30 seconds to read. Use matplotlib and your Cricket Oracle data. Design it for someone who doesn\'t read tables.'},
+    {id:'vi3',title:'Practice explaining a complex metric to a non-technical person — record yourself',phase:'2',type:'practice',res:'self-practice',desc:'Pick a metric like xG or Control% and explain it in under 2 minutes to someone with no data background. Record yourself on your phone, then watch it back. This is uncomfortable but it exposes exactly where your explanation breaks down. Sports analytics roles require constant communication with coaches and management who are not technical.'},
+    {id:'vi4',title:'Write 3 LinkedIn posts on cricket analytics insights',phase:'2',type:'publish',res:'LinkedIn',desc:'Each post should share one concrete insight from your data — "Death bowling economy has increased 18% in IPL since 2020 — here\'s why" — with a chart and a short explanation. Three posts forces you to communicate findings clearly and publicly, which is what makes you findable by people hiring in sports analytics.'},
+    {id:'vi5',title:'Build a live cricket dashboard (Streamlit or Next.js) using your Supabase data',phase:'2',type:'project',res:'streamlit.io',desc:'Streamlit lets you turn a Python script into a web app in about an hour — no frontend knowledge needed. Build a dashboard that queries your Supabase DB and shows matchup stats, player form, or win probability. This is the closest you can get to what a franchise analytics team actually ships to coaching staff.'},
   ]},
   {id:'cv',icon:'◈',name:'Computer vision (edge bet)',tasks:[
-    {id:'cv1',title:'Learn OpenCV basics: video reading, frame extraction, object detection',phase:'2',type:'course',res:'pyimagesearch.com'},
-    {id:'cv2',title:'Run MediaPipe pose estimation on a cricket batting video — extract joint coords',phase:'2',type:'project',res:'google.github.io/mediapipe'},
-    {id:'cv3',title:'Build stroke classification model (pull/drive/cut) using pose keypoints + RF',phase:'3',type:'project',res:'scikit-learn + MediaPipe'},
-    {id:'cv4',title:'Study Hawk-Eye and Second Spectrum architecture at a high level',phase:'3',type:'study',res:'Engineering blogs / research papers'},
+    {id:'cv1',title:'Learn OpenCV basics: video reading, frame extraction, object detection',phase:'2',type:'course',res:'pyimagesearch.com',desc:'OpenCV is the standard Python library for computer vision. The basics you need: read a video file, extract individual frames, detect objects in a frame (using pre-trained models like YOLO). Pyimagesearch has well-written tutorials that get you to working code fast without needing a CV research background.'},
+    {id:'cv2',title:'Run MediaPipe pose estimation on a cricket batting video — extract joint coords',phase:'2',type:'project',res:'google.github.io/mediapipe',desc:'MediaPipe is Google\'s ML pipeline for body tracking — it detects 33 body landmarks (shoulders, elbows, wrists, hips) in real time from a video. Run it on a batting video (even a YouTube clip saved locally) and extract the joint coordinates frame by frame. This is the raw input for stroke classification.'},
+    {id:'cv3',title:'Build stroke classification model (pull/drive/cut) using pose keypoints + RF',phase:'3',type:'project',res:'scikit-learn + MediaPipe',desc:'With joint coordinates per frame from MediaPipe, you can compute features like elbow angle at impact, bat swing direction, and hip rotation — then train a Random Forest to classify whether a shot is a pull, cover drive, or cut. This is novel enough that almost no cricket analytics candidates have done it.'},
+    {id:'cv4',title:'Study Hawk-Eye and Second Spectrum architecture at a high level',phase:'3',type:'study',res:'Engineering blogs / research papers',desc:'Hawk-Eye uses multiple cameras and trajectory reconstruction to track ball and player positions with millimetre accuracy. Second Spectrum does the same for basketball and football. Reading their engineering blogs or available papers gives you a realistic sense of what production sports tracking systems actually look like at scale.'},
   ]},
   {id:'llm',icon:'⬡',name:'LLM sports intelligence',tasks:[
-    {id:'ll1',title:'Clean up Cricket Oracle codebase — add README, architecture diagram, tests',phase:'1',type:'project',res:'your existing repo'},
-    {id:'ll2',title:'Push Cricket Oracle to public GitHub with proper docs',phase:'1',type:'publish',res:'github.com'},
-    {id:'ll3',title:'Add structured feedback parsing loop: post-match analysis → KB entries → prompt',phase:'2',type:'project',res:'Cricket Oracle BRIEFING_SPEC.md'},
-    {id:'ll4',title:'Build natural language query layer: "who performs best in powerplay vs left arm pace"',phase:'2',type:'project',res:'LangChain / direct API over Supabase'},
-    {id:'ll5',title:'Write a blog post framing Cricket Oracle as a product for CricViz/franchise audience',phase:'3',type:'publish',res:'Medium / personal site'},
+    {id:'ll1',title:'Clean up Cricket Oracle codebase — add README, architecture diagram, tests',phase:'1',type:'project',res:'your existing repo',desc:'The codebase works but it\'s not portfolio-ready. Add a README that explains what the system does, what data it uses, and how the components fit together. Draw a simple architecture diagram (Excalidraw works). Add at least basic tests for the matchup engine. The goal is that a stranger can understand the system in 10 minutes.'},
+    {id:'ll2',title:'Push Cricket Oracle to public GitHub with proper docs',phase:'1',type:'publish',res:'github.com',desc:'This is your single most important portfolio artifact for sports analytics roles. A clean public repo that shows an LLM-powered cricket intelligence system, built on real ball-by-ball data, with a documented architecture — nothing else in your portfolio comes close. Make it public before you apply to anything sports-adjacent.'},
+    {id:'ll3',title:'Add structured feedback parsing loop: post-match analysis → KB entries → prompt',phase:'2',type:'project',res:'Cricket Oracle BRIEFING_SPEC.md',desc:'The idea is to close the loop: after a match, you write a qualitative analysis ("KL Rahul struggled against left-arm pace today"), and the system parses that into a structured knowledge base entry that influences future briefings. This makes the system learn from human judgment, not just raw statistics.'},
+    {id:'ll4',title:'Build natural language query layer: "who performs best in powerplay vs left arm pace"',phase:'2',type:'project',res:'LangChain / direct API over Supabase',desc:'Instead of writing SQL to answer every question, build a layer that lets you ask questions in plain English. The LLM translates the question into a Supabase query, runs it, and formats the result. This is essentially a text-to-SQL system over your cricket database — a genuinely useful product feature.'},
+    {id:'ll5',title:'Write a blog post framing Cricket Oracle as a product for CricViz/franchise audience',phase:'3',type:'publish',res:'Medium / personal site',desc:'Write a piece titled something like "What an AI-powered pre-match briefing system looks like" — describe the problem it solves, the architecture, and what it outputs. Target it at franchise analysts and cricket data companies. This positions the project as a product concept, not just a personal coding exercise, and is what makes it memorable to hiring managers.'},
   ]},
   {id:'network',icon:'◉',name:'Network & visibility',tasks:[
-    {id:'nw1',title:'Follow and engage with CricViz, StatsBomb, Opta analysts on Twitter/LinkedIn',phase:'1',type:'network',res:'LinkedIn + Twitter/X'},
-    {id:'nw2',title:'Join Friends of Tracking / cricket analytics Discord communities',phase:'1',type:'network',res:'Google for invite links'},
-    {id:'nw3',title:'Email one cricket analytics person a thoughtful question — start a conversation',phase:'2',type:'network',res:'CricViz team LinkedIn'},
-    {id:'nw4',title:'Apply to CricViz / Opta / Hawk-Eye internship — target summer of Year 2',phase:'2',type:'apply',res:'Their careers pages'},
-    {id:'nw5',title:'Submit a cricket analytics piece to an open-source analytics conference',phase:'3',type:'publish',res:'SSAC, NESSIS, or Journal of Sports Analytics'},
+    {id:'nw1',title:'Follow and engage with CricViz, StatsBomb, Opta analysts on Twitter/LinkedIn',phase:'1',type:'network',res:'LinkedIn + Twitter/X',desc:'The cricket analytics community is small and concentrated on Twitter/X. The people who publish CricViz articles, StatsBomb blogs, and Opta data pieces are reachable — they respond to thoughtful replies. Follow them, read their work, and leave genuine comments. This is how you get on people\'s radar before you cold-email them.'},
+    {id:'nw2',title:'Join Friends of Tracking / cricket analytics Discord communities',phase:'1',type:'network',res:'Google for invite links',desc:'Friends of Tracking is a football analytics community with online talks and a Discord. There are equivalent cricket analytics communities (smaller, often on Slack or Discord). Being present in these spaces — asking questions, sharing what you\'re building — is how junior analysts get noticed and get referrals. Find the invite links via Google or Twitter.'},
+    {id:'nw3',title:'Email one cricket analytics person a thoughtful question — start a conversation',phase:'2',type:'network',res:'CricViz team LinkedIn',desc:'Pick one specific CricViz or Opta article, read it carefully, and email the author a genuine question about their methodology — not "can I have a job" but "I tried replicating your control% model and got X — does your version handle Y differently?" Analysts who publish respond well to this because it shows you actually engaged with their work.'},
+    {id:'nw4',title:'Apply to CricViz / Opta / Hawk-Eye internship — target summer of Year 2',phase:'2',type:'apply',res:'Their careers pages',desc:'CricViz and Opta both run internship programmes that are the clearest path into professional sports analytics. Applications typically open in spring for a summer start. By Year 2 you\'ll have the Cricket Oracle repo, a StatsBomb project, and dbt/AWS experience — that\'s a credible profile. Check their careers pages directly; they don\'t always advertise on LinkedIn.'},
+    {id:'nw5',title:'Submit a cricket analytics piece to an open-source analytics conference',phase:'3',type:'publish',res:'SSAC, NESSIS, or Journal of Sports Analytics',desc:'SSAC (Sloan Sports Analytics Conference) and NESSIS (New England Symposium on Statistics in Sports) accept student research paper submissions. The Journal of Sports Analytics is a peer-reviewed journal. Submitting your cricket methodology work here — even if it doesn\'t get accepted — forces you to write it up rigorously and puts you in the same ecosystem as people who hire in sports.'},
   ]},
 ];
 
@@ -440,7 +445,8 @@ let state = {
   topics:{},apps:[],oss:[],milestones:{},
   resOpen:{},notesOpen:{},
   sportsDone:{},
-  scatOpen:{}
+  scatOpen:{},
+  sportsExp:{}
 };
 
 function load(){try{const r=localStorage.getItem(SK);if(r)state={...state,...JSON.parse(r)}}catch(e){}}
@@ -612,6 +618,14 @@ function toggleScat(id){
   save();
 }
 
+function toggleSportsExp(id,e){
+  if(e)e.stopPropagation();
+  if(!state.sportsExp)state.sportsExp={};
+  state.sportsExp[id]=!state.sportsExp[id];
+  renderSports();
+  save();
+}
+
 function renderSports(){
   const allTasks=SPORTS_DATA.flatMap(c=>c.tasks);
   const total=allTasks.length;
@@ -651,17 +665,20 @@ function renderSports(){
       ${isOpen?`<div class="stasks">
         ${tasks.map(t=>{
           const isDone=state.sportsDone[t.id];
+          const isExp=state.sportsExp&&state.sportsExp[t.id];
           const phClass=t.phase==='1'?'ph1':t.phase==='2'?'ph2':'ph3';
           const phLabel=t.phase==='1'?'year 1':t.phase==='2'?'year 2':'year 3';
-          return `<div class="stask ${isDone?'done':''}" onclick="toggleSportsTask('${t.id}')">
-            <div class="stask-check">${isDone?'✓':''}</div>
+          return `<div class="stask ${isDone?'done':''} ${isExp?'expanded':''}" id="st-${t.id}">
+            <div class="stask-check" onclick="toggleSportsTask('${t.id}')">${isDone?'✓':''}</div>
             <div class="stask-body">
-              <div class="stask-title">${t.title}</div>
+              <div class="stask-title" onclick="toggleSportsTask('${t.id}')">${t.title}</div>
               <div class="stask-meta">
                 <span class="phase-pill ${phClass}">${phLabel}</span>
                 <span class="type-pill">${t.type}</span>
               </div>
               <div class="stask-res">→ ${t.res}</div>
+              ${t.desc?`<button class="stask-expand-btn" onclick="toggleSportsExp('${t.id}',event)">${isExp?'▾ hide notes':'▸ what is this?'}</button>
+              <div class="stask-desc">${t.desc}</div>`:''}
             </div>
           </div>`;
         }).join('')}
